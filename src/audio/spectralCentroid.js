@@ -1,19 +1,10 @@
-import { makeCalculateStats } from '../utils/calculateStats'
-
-let calculateStats = makeCalculateStats()
-
-self.addEventListener('message', ({ data: e }) => {
-    if (e.type === 'fftData') {
-        let fftData = e.data.fft // Extract FFT data from message
-        let computed = calculateSpectralCentroid(fftData) // Process FFT data
-        computed *= 1.5
-        if (computed === null) return
-        self.postMessage({ type: 'computedValue', value: computed, stats: calculateStats(computed) })
-    }
-    if (e.type === 'config') {
-        calculateStats = makeCalculateStats(e.config.historySize)
-    }
-})
+export default function spectralCentroid(prevValue,statCalculator, fft) {
+    let computed = calculateSpectralCentroid(fft) // Process FFT data
+    computed *= 1.5
+    const value = computed
+    const stats = statCalculator(value)
+    return { value, stats }
+}
 
 function mu(i, amplitudeSpect) {
     let numerator = 0
@@ -27,6 +18,7 @@ function mu(i, amplitudeSpect) {
     if (denominator === 0) return null // Prevent division by zero
     return numerator / denominator
 }
+
 
 function calculateSpectralCentroid(ampSpectrum) {
     const centroid = mu(1, ampSpectrum)
