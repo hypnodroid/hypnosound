@@ -1,0 +1,24 @@
+{
+  "name": "hypnosound",
+  "version": "1.0.0",
+  "description": "A small library for analyzing audio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hypnodroid/hypnosound.git"
+  },
+  "keywords": [
+    "Audio",
+    "sound",
+    "music"
+  ],
+  "author": "redaphid <iam@aaronherres.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hypnodroid/hypnosound/issues"
+  },
+  "homepage": "https://github.com/hypnodroid/hypnosound#readme"
+}
