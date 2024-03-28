@@ -8,5 +8,10 @@ class AudioProcessor {
         this.statCalculators.energy = makeCalculateStats()
         this.previousValue.energy = 0
     }
+    energy = (fft) => {
+        const {value, stats} = energy(this.previousValue.energy, this.statCalculators.energy, fft)
+        this.previousValue.energy = value
+        return {value, stats}
+    }
 }
 export default AudioProcessor

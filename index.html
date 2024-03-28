@@ -7,6 +7,10 @@
 </head>
 <body>
     <button id="start">Start Listening</button>
+    <script type="module">
+      import AudioProcessor from './index.js'
+      console.log(AudioProcessor)
+    </script>
     <script>
         document.getElementById('start').addEventListener('click', async () => {
             try {
@@ -27,7 +31,7 @@
                     analyser.getByteFrequencyData(dataArray);
 
                     // This is where the magic happens, but be careful what you log...
-                    console.log(dataArray);
+                    // console.log(dataArray);
                 };
 
                 draw();
