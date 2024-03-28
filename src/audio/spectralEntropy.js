@@ -1,4 +1,4 @@
-import { makeCalculateStats } from '../../utils/calculateStats'
+import { makeCalculateStats } from '../utils/calculateStats'
 
 let calculateStats = makeCalculateStats()
 
