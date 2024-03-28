@@ -8,11 +8,9 @@
 <body>
     <button id="start">Start Listening</button>
     <script type="module">
-      import AudioProcessor from './index.js'
-      console.log(AudioProcessor)
-    </script>
-    <script>
+        import AudioProcessor from './index.js'
         document.getElementById('start').addEventListener('click', async () => {
+          const a = new AudioProcessor()
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -31,7 +29,7 @@
                     analyser.getByteFrequencyData(dataArray);
 
                     // This is where the magic happens, but be careful what you log...
-                    // console.log(dataArray);
+                    console.log(a.energy(dataArray));
                 };
 
                 draw();
