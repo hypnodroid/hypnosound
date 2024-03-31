@@ -1,7 +1,11 @@
 import {makeCalculateStats} from './src/utils/calculateStats.js'
+
 import energy from './src/audio/energy.js'
 import spectralCentroid from './src/audio/spectralCentroid.js'
 import spectralCrest from './src/audio/spectralCrest.js'
+import spectralEntropy from './src/audio/spectralEntropy.js'
+import spectralFlux from './src/audio/spectralFlux.js'
+
 class AudioProcessor {
     constructor() {
       this.statCalculators = {}
@@ -17,6 +21,11 @@ class AudioProcessor {
       this.statCalculators.spectralCrest = makeCalculateStats()
       this.previousValue.spectralCrest = 0
 
+      this.statCalculators.spectralEntropy = makeCalculateStats()
+      this.previousValue.spectralEntropy = 0
+
+      this.statCalculators.spectralFlux = makeCalculateStats()
+      this.previousValue.spectralFlux = null
 
     }
     energy = (fft) => {
@@ -36,5 +45,19 @@ class AudioProcessor {
         this.previousValue.spectralCrest = value
         return {value, stats}
     }
+
+
+    spectralEntropy = (fft) => {
+        const {value, stats} = spectralEntropy(this.previousValue.spectralEntropy, this.statCalculators.spectralEntropy, fft)
+        this.previousValue.spectralEntropy = value
+        return {value, stats}
+    }
+
+    spectralFlux = (fft) => {
+        const {value, stats} = spectralFlux(this.previousValue.spectralFlux, this.statCalculators.spectralFlux, fft)
+        this.previousValue.spectralFlux = new Uint8Array(fft)
+        return {value, stats}
+    }
+
 }
 export default AudioProcessor
