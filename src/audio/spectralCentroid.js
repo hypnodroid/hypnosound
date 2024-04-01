@@ -1,22 +1,7 @@
-export default function spectralCentroid(prevValue, statCalculator, fft) {
-    let computed = calculateSpectralCentroid(fft) // Process FFT data
-    computed *= 1.5
-    const value = computed
-    const stats = statCalculator(value)
-    return { value, stats }
-}
-
-function mu(i, amplitudeSpect) {
-    let numerator = 0
-    let denominator = 0
-
-    for (let k = 0; k < amplitudeSpect.length; k++) {
-        numerator += Math.pow(k, i) * Math.abs(amplitudeSpect[k])
-        denominator += amplitudeSpect[k]
-    }
-
-    if (denominator === 0) return null // Prevent division by zero
-    return numerator / denominator
+import mu from '../utils/mu.js'
+export default function spectralCentroid(fft) {
+    const computed = calculateSpectralCentroid(fft) // Process FFT data
+    return computed * 1.5
 }
 
 function calculateSpectralCentroid(ampSpectrum) {

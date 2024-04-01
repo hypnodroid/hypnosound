@@ -19,7 +19,6 @@ class AudioProcessor {
         this.statCalculators.energy = makeCalculateStats()
 
         this.statCalculators.spectralCentroid = makeCalculateStats()
-        this.previousValue.spectralCentroid = 0
 
         this.statCalculators.spectralCrest = makeCalculateStats()
         this.previousValue.spectralCrest = 0
@@ -53,8 +52,8 @@ class AudioProcessor {
     }
 
     spectralCentroid = (fft) => {
-        const { value, stats } = spectralCentroid(this.previousValue.spectralCentroid, this.statCalculators.spectralCentroid, fft)
-        this.previousValue.spectralCentroid = value
+        const value = spectralCentroid(fft)
+        const stats = this.statCalculators.spectralCentroid(value)
         return { value, stats }
     }
 
