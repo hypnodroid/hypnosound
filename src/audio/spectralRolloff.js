@@ -1,7 +1,6 @@
-export default function spectralRolloff(prevValue, statCalculator, fft) {
+export default function spectralRolloff(fft) {
     const value = calculateSpectralRolloff(fft) // Compute Spectral Rolloff
-    const stats = statCalculator(value)
-    return { value, stats }
+    return value
 }
 
 // Calculate Spectral Rolloff
