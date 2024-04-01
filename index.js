@@ -65,8 +65,9 @@ class AudioProcessor {
     }
 
     spectralFlux = (fft) => {
-        const { value, stats } = spectralFlux(this.previousValue.spectralFlux, this.statCalculators.spectralFlux, fft)
+        const value = spectralFlux(fft, this.previousValue.spectralFlux)
         this.previousValue.spectralFlux = new Uint8Array(fft)
+        const stats = this.statCalculators.spectralFlux(value)
         return { value, stats }
     }
     spectralKurtosis = (fft) => {

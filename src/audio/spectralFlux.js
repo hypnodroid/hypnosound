@@ -1,7 +1,6 @@
-export default function spectralFlux(prevValue, statCalculator, fft) {
+export default function spectralFlux(fft, prevValue) {
     const value = calculateSpectralFlux(fft, prevValue)
-    const stats = statCalculator(value)
-    return { value, stats }
+    return value
 }
 
 function calculateSpectralFlux(currentSignal, previousSignal) {
