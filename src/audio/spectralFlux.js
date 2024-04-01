@@ -1,6 +1,6 @@
 export default function spectralFlux(fft, prevValue) {
     const value = calculateSpectralFlux(fft, prevValue)
-    return value
+    return value / 100_000
 }
 
 function calculateSpectralFlux(currentSignal, previousSignal) {
@@ -13,5 +13,5 @@ function calculateSpectralFlux(currentSignal, previousSignal) {
         const diff = Math.abs(currentSignal[i]) - Math.abs(previousSignal[i])
         sf += (diff + Math.abs(diff)) / 2
     }
-    return sf / 30_000
+    return sf
 }
