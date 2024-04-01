@@ -1,6 +1,9 @@
-import { makeCalculateStats } from '../utils/calculateStats'
-
-let calculateStats = makeCalculateStats()
+export default function spectralRoughness(prevValue, statCalculator, fft) {
+    let computed = calculateSpectralRoughness(fft) // Process FFT data
+    const value = computed/100_000
+    const stats = statCalculator(value)
+    return { value, stats }
+}
 
 function calculateSpectralRoughness(fftData) {
     let roughness = 0
@@ -13,17 +16,3 @@ function calculateSpectralRoughness(fftData) {
 
     return roughness
 }
-
-self.addEventListener('message', ({ data: e }) => {
-    if (e.type === 'fftData') {
-        let fftData = e.data.fft // Extract FFT data from message
-
-        // Process FFT data for roughness
-        let computedRoughness = calculateSpectralRoughness(fftData)
-        computedRoughness /= 100_000
-        self.postMessage({ type: 'computedValue', value: computedRoughness, stats: calculateStats(computedRoughness) })
-    }
-    if (e.type === 'config') {
-        calculateStats = makeCalculateStats(e.config.historySize)
-    }
-})
