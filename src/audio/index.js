@@ -8,4 +8,3 @@ export * as spectralRolloff from './spectralRolloff'
 export * as spectralRoughness from './spectralRoughness'
 export * as spectralSkew from './spectralSkew'
 export * as spectralSpread from './spectralSpread'
-

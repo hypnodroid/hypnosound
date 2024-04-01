@@ -1,11 +1,10 @@
 export default function spectralFlux(prevValue, statCalculator, fft) {
-        const value = calculateSpectralFlux(fft, prevValue)
-        const stats = statCalculator(value)
-        return { value, stats }
+    const value = calculateSpectralFlux(fft, prevValue)
+    const stats = statCalculator(value)
+    return { value, stats }
 }
 
 function calculateSpectralFlux(currentSignal, previousSignal) {
-
     if (!previousSignal) {
         previousSignal = new Float32Array(currentSignal.length)
     }

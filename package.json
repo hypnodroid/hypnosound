@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "live-server ."
+    "start": "live-server .",
+    "format": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,8 @@
   },
   "homepage": "https://github.com/hypnodroid/hypnosound#readme",
   "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-prettier": "^5.1.3",
     "live-server": "^1.2.2"
   }
 }

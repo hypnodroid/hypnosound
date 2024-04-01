@@ -1,4 +1,4 @@
-export default function spectralKurtosis(prevValue,statCalculator, fft) {
+export default function spectralKurtosis(prevValue, statCalculator, fft) {
     let computed = calculateSpectralKurtosis(fft) // Process FFT data
     const value = computed * 100
     const stats = statCalculator(value)

@@ -1,5 +1,4 @@
-
-export default function energy(prevValue,statCalculator, fft) {
+export default function energy(statCalculator, fft) {
     const value = calculateFFTEnergy(fft)
     const stats = statCalculator(value)
     return { value, stats }

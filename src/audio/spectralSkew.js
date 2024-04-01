@@ -1,6 +1,6 @@
 export default function spectralSkew(prevValue, statCalculator, fft) {
     const computed = calculateSpectralSkewness(fft) || 0 // Process FFT data
-    const value = computed / 10.
+    const value = computed / 10
     const stats = statCalculator(value)
     return { value, stats }
 }
