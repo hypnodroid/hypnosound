@@ -1,7 +1,7 @@
 import mu from '../utils/mu.js'
 export default function spectralKurtosis(fft) {
     const value = calculateSpectralKurtosis(fft) // Process FFT data
-    return value / 10
+    return value / 1000
 }
 
 function calculateSpectralKurtosis(fftData) {
