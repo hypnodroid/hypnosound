@@ -9,6 +9,7 @@ import spectralKurtosis from "./src/audio/spectralKurtosis.js";
 import spectralRolloff from "./src/audio/spectralRolloff.js";
 import spectralRoughness from "./src/audio/spectralRoughness.js";
 import spectralSkew from "./src/audio/spectralSkew.js";
+import spectralSpread from "./src/audio/spectralSpread.js";
 
 class AudioProcessor {
   constructor() {
@@ -42,6 +43,9 @@ class AudioProcessor {
 
     this.statCalculators.spectralRoughness = makeCalculateStats();
     this.previousValue.spectralRoughness = 0;
+
+    this.statCalculators.spectralSpread = makeCalculateStats();
+    this.previousValue.spectralSpread = 0;
   }
 
   energy = (fft) => {
@@ -94,6 +98,12 @@ class AudioProcessor {
   spectralSkew = (fft) => {
     const { value, stats } = spectralSkew(this.previousValue.spectralSkew, this.statCalculators.spectralSkew, fft);
     this.previousValue.spectralSkew = value;
+    return { value, stats };
+  };
+
+  spectralSpread = (fft) => {
+    const { value, stats } = spectralSpread(this.previousValue.spectralSpread, this.statCalculators.spectralSpread, fft);
+    this.previousValue.spectralSpread = value;
     return { value, stats };
   };
 }
