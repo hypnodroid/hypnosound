@@ -108,3 +108,4 @@ class AudioProcessor {
   };
 }
 export default AudioProcessor;
+export {energy, spectralCentroid, spectralCrest, spectralEntropy, spectralFlux, spectralKurtosis, spectralRolloff, spectralRoughness, spectralSkew, spectralSpread};
