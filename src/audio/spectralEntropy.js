@@ -1,8 +1,5 @@
-export default function spectralEntropy(prevValue, statCalculator, fft) {
-    let computed = calculateSpectralEntropy(fft) // Process FFT data
-    const value = computed
-    const stats = statCalculator(value)
-    return { value, stats }
+export default function spectralEntropy(fft) {
+    return calculateSpectralEntropy(fft) // Process FFT data
 }
 
 function toPowerSpectrum(fftData) {

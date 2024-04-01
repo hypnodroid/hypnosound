@@ -17,13 +17,9 @@ class AudioProcessor {
         this.previousValue = {}
 
         this.statCalculators.energy = makeCalculateStats()
-
         this.statCalculators.spectralCentroid = makeCalculateStats()
-
         this.statCalculators.spectralCrest = makeCalculateStats()
-
         this.statCalculators.spectralEntropy = makeCalculateStats()
-        this.previousValue.spectralEntropy = 0
 
         this.statCalculators.spectralFlux = makeCalculateStats()
         this.previousValue.spectralFlux = null
@@ -63,8 +59,8 @@ class AudioProcessor {
     }
 
     spectralEntropy = (fft) => {
-        const { value, stats } = spectralEntropy(this.previousValue.spectralEntropy, this.statCalculators.spectralEntropy, fft)
-        this.previousValue.spectralEntropy = value
+        const value = spectralEntropy(fft)
+        const stats = this.statCalculators.spectralEntropy(value)
         return { value, stats }
     }
 
