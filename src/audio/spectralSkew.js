@@ -1,21 +1,7 @@
-export default function spectralSkew(prevValue, statCalculator, fft) {
+export default function spectralSkew(fft) {
     const computed = calculateSpectralSkewness(fft) || 0 // Process FFT data
     const value = computed / 10
-    const stats = statCalculator(value)
-    return { value, stats }
-}
-
-function mu(i, amplitudeSpect) {
-    let numerator = 0
-    let denominator = 0
-
-    for (let k = 0; k < amplitudeSpect.length; k++) {
-        numerator += Math.pow(k, i) * Math.abs(amplitudeSpect[k])
-        denominator += amplitudeSpect[k]
-    }
-
-    if (denominator === 0) return null // Prevent division by zero
-    return numerator / denominator
+    return value
 }
 
 function calculateSpectralSkewness(fftData) {

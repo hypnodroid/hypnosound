@@ -89,8 +89,8 @@ class AudioProcessor {
     }
 
     spectralSkew = (fft) => {
-        const { value, stats } = spectralSkew(this.previousValue.spectralSkew, this.statCalculators.spectralSkew, fft)
-        this.previousValue.spectralSkew = value
+        const value = spectralSkew(fft)
+        const stats = this.statCalculators.spectralSkew(value)
         return { value, stats }
     }
 
