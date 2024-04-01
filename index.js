@@ -6,6 +6,7 @@ import spectralCrest from "./src/audio/spectralCrest.js";
 import spectralEntropy from "./src/audio/spectralEntropy.js";
 import spectralFlux from "./src/audio/spectralFlux.js";
 import spectralKurtosis from "./src/audio/spectralKurtosis.js";
+import spectralRolloff from "./src/audio/spectralRolloff.js";
 
 class AudioProcessor {
   constructor() {
@@ -30,6 +31,9 @@ class AudioProcessor {
 
     this.statCalculators.spectralKurtosis = makeCalculateStats();
     this.previousValue.spectralKurtosis = 0;
+
+    this.statCalculators.spectralRolloff = makeCalculateStats();
+    this.previousValue.spectralRolloff = 0;
   }
   energy = (fft) => {
     const { value, stats } = energy(this.previousValue.energy, this.statCalculators.energy, fft);
@@ -63,6 +67,12 @@ class AudioProcessor {
   spectralKurtosis = (fft) => {
     const { value, stats } = spectralKurtosis(this.previousValue.spectralKurtosis, this.statCalculators.spectralKurtosis, fft);
     this.previousValue.spectralKurtosis = value;
+    return { value, stats };
+  };
+
+  spectralRolloff = (fft) => {
+    const { value, stats } = spectralRolloff(this.previousValue.spectralRolloff, this.statCalculators.spectralRolloff, fft);
+    this.previousValue.spectralRolloff = value;
     return { value, stats };
   };
 }

@@ -1,17 +1,8 @@
-import { makeCalculateStats } from '../utils/calculateStats'
-
-let calculateStats = makeCalculateStats()
-
-self.addEventListener('message', ({ data: e }) => {
-    if (e.type === 'fftData') {
-        let fftData = e.data.fft // Extract FFT data from message
-        let rolloff = calculateSpectralRolloff(fftData) // Compute Spectral Rolloff
-        self.postMessage({ type: 'computedValue', value: rolloff, stats: calculateStats(rolloff) })
-    }
-    if (e.type === 'config') {
-        calculateStats = makeCalculateStats(e.config.historySize)
-    }
-})
+export default function spectralRolloff(prevValue, statCalculator, fft) {
+    const value = calculateSpectralRolloff(fft) // Compute Spectral Rolloff
+    const stats = statCalculator(value)
+    return { value, stats }
+}
 
 // Calculate Spectral Rolloff
 function calculateSpectralRolloff(fftData, threshold = 0.85) {
