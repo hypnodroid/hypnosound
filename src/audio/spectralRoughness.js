@@ -1,8 +1,6 @@
-export default function spectralRoughness(prevValue, statCalculator, fft) {
-    let computed = calculateSpectralRoughness(fft) // Process FFT data
-    const value = computed / 100_000
-    const stats = statCalculator(value)
-    return { value, stats }
+export default function spectralRoughness(fft) {
+    const value = calculateSpectralRoughness(fft) // Process FFT data
+    return value / 100_000
 }
 
 function calculateSpectralRoughness(fftData) {

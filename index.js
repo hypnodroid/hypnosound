@@ -13,12 +13,16 @@ import spectralSpread from './src/audio/spectralSpread.js'
 
 class AudioProcessor {
     constructor() {
+        // aah, state management
         this.statCalculators = {}
         this.previousValue = {}
 
         this.statCalculators.energy = makeCalculateStats()
+
         this.statCalculators.spectralCentroid = makeCalculateStats()
+
         this.statCalculators.spectralCrest = makeCalculateStats()
+
         this.statCalculators.spectralEntropy = makeCalculateStats()
 
         this.statCalculators.spectralFlux = makeCalculateStats()
@@ -29,10 +33,8 @@ class AudioProcessor {
         this.statCalculators.spectralRolloff = makeCalculateStats()
 
         this.statCalculators.spectralSkew = makeCalculateStats()
-        this.previousValue.spectralSkew = 0
 
         this.statCalculators.spectralRoughness = makeCalculateStats()
-        this.previousValue.spectralRoughness = 0
 
         this.statCalculators.spectralSpread = makeCalculateStats()
         this.previousValue.spectralSpread = 0
@@ -81,8 +83,8 @@ class AudioProcessor {
     }
 
     spectralRoughness = (fft) => {
-        const { value, stats } = spectralRoughness(this.previousValue.spectralRoughness, this.statCalculators.spectralRoughness, fft)
-        this.previousValue.spectralRoughness = value
+        const value = spectralRoughness(fft)
+        const stats = this.statCalculators.spectralRoughness(value)
         return { value, stats }
     }
 
