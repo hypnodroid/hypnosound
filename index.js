@@ -25,7 +25,6 @@ class AudioProcessor {
         this.previousValue.spectralFlux = null
 
         this.statCalculators.spectralKurtosis = makeCalculateStats()
-        this.previousValue.spectralKurtosis = 0
 
         this.statCalculators.spectralRolloff = makeCalculateStats()
         this.previousValue.spectralRolloff = 0
@@ -71,8 +70,8 @@ class AudioProcessor {
         return { value, stats }
     }
     spectralKurtosis = (fft) => {
-        const { value, stats } = spectralKurtosis(this.previousValue.spectralKurtosis, this.statCalculators.spectralKurtosis, fft)
-        this.previousValue.spectralKurtosis = value
+        const value = spectralKurtosis(fft)
+        const stats = this.statCalculators.spectralKurtosis(value)
         return { value, stats }
     }
 
