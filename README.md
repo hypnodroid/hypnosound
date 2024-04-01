@@ -10,7 +10,7 @@ You can either use the AudioProcessor, which maintains state and calculates the 
 
 ```javascript
   import AudioProcessor from 'hypnosound';
-
+  const a = new AudioProcessor();
   console.log({
     energy: a.energy(fft),
     spectralCentroid: a.spectralCentroid(fft),
