@@ -37,7 +37,6 @@ class AudioProcessor {
         this.statCalculators.spectralRoughness = makeCalculateStats()
 
         this.statCalculators.spectralSpread = makeCalculateStats()
-        this.previousValue.spectralSpread = 0
     }
 
     energy = (fft) => {
@@ -95,8 +94,8 @@ class AudioProcessor {
     }
 
     spectralSpread = (fft) => {
-        const { value, stats } = spectralSpread(this.previousValue.spectralSpread, this.statCalculators.spectralSpread, fft)
-        this.previousValue.spectralSpread = value
+        const value = spectralSpread(fft)
+        const stats = this.statCalculators.spectralSpread(value)
         return { value, stats }
     }
 }

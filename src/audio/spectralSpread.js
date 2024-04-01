@@ -1,21 +1,7 @@
-export default function spectralSpread(prevValue, statCalculator, fft) {
-    let computed = calculateSpectralSpread(fft) // Process FFT data
-    const value = computed
-    const stats = statCalculator(value)
-    return { value, stats }
-}
-
-function mu(i, amplitudeSpect) {
-    let numerator = 0
-    let denominator = 0
-
-    for (let k = 0; k < amplitudeSpect.length; k++) {
-        numerator += Math.pow(k, i) * Math.abs(amplitudeSpect[k])
-        denominator += amplitudeSpect[k]
-    }
-
-    if (denominator === 0) return 0 // Prevent division by zero
-    return numerator / denominator
+import mu from '../utils/mu.js'
+export default function spectralSpread(fft) {
+    const value = calculateSpectralSpread(fft) // Process FFT data
+    return value
 }
 
 function calculateMaxSpread(fftSize) {
