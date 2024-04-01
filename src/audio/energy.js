@@ -1,7 +1,6 @@
-export default function energy(statCalculator, fft) {
-    const value = calculateFFTEnergy(fft)
-    const stats = statCalculator(value)
-    return { value, stats }
+
+export default function energy(fft) {
+    return calculateFFTEnergy(fft)
 }
 
 function calculateFFTEnergy(currentSignal) {
