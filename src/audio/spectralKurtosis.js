@@ -1,18 +1,9 @@
-import { makeCalculateStats } from '../utils/calculateStats'
-
-let calculateStats = makeCalculateStats()
-
-self.addEventListener('message', ({ data: e }) => {
-    if (e.type === 'fftData') {
-        let fftData = e.data.fft // Extract FFT data from message
-        let computed = calculateSpectralKurtosis(fftData) // Compute spectral kurtosis
-        if (computed === null) return
-        self.postMessage({ type: 'computedValue', value: computed, stats: calculateStats(computed) })
-    }
-    if (e.type === 'config') {
-        calculateStats = makeCalculateStats(e.config.historySize)
-    }
-})
+export default function spectralKurtosis(prevValue,statCalculator, fft) {
+    let computed = calculateSpectralKurtosis(fft) // Process FFT data
+    const value = computed * 100
+    const stats = statCalculator(value)
+    return { value, stats }
+}
 
 function mu(i, amplitudeSpect) {
     let numerator = 0
