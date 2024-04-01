@@ -1,8 +1,6 @@
-export default function spectralCrest(prevValue, statCalculator, fft) {
-    let computed = calculateSpectralCrest(fft) // Process FFT data
-    const value = computed * 100
-    const stats = statCalculator(value)
-    return { value, stats }
+export default function spectralCrest(fft) {
+    const computed = calculateSpectralCrest(fft) // Process FFT data
+    return computed * 100
 }
 
 function calculateSpectralCrest(fftData) {
