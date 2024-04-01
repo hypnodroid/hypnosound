@@ -4,5 +4,6 @@ export * as spectralCrest from './spectralCrest'
 export * as spectralEntropy from './spectralEntropy'
 export * as spectralFlux from './spectralFlux'
 export * as spectralKurtosis from './spectralKurtosis'
-export * as spectralRollOff from './spectralRollOff'
+export * as spectralRolloff from './spectralRolloff'
+export * as spectralSkew from './spectralSkew'
 
