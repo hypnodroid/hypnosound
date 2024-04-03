@@ -9,7 +9,8 @@
     <button id="start">Start Listening</button>
     <script type="module">
         import AudioProcessor from './index.js'
-        document.getElementById('start').addEventListener('click', async () => {
+        const button = document.getElementById('start')
+        button.addEventListener('click', async () => {
           const a = new AudioProcessor()
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -19,7 +20,7 @@
 
                 source.connect(analyser);
                 analyser.fftSize = 32768; // Or whatever size you need
-
+                analyser.smoothingTimeConstant = 0
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
 
@@ -41,7 +42,6 @@
                       spectralSkew: a.spectralSkew(dataArray),
                       spectralSpread: a.spectralSpread(dataArray),
                     });
-                    // console.log(a.spectralCentroid(dataArray).value);
                 };
 
                 draw();

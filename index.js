@@ -1,5 +1,5 @@
 import { makeCalculateStats } from './src/utils/calculateStats.js'
-
+import {applyKaiserWindow} from './src/utils/applyKaiserWindow.js'
 import energy from './src/audio/energy.js'
 import spectralCentroid from './src/audio/spectralCentroid.js'
 import spectralCrest from './src/audio/spectralCrest.js'
@@ -40,61 +40,71 @@ class AudioProcessor {
     }
 
     energy = (fft) => {
-        const value = energy(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = energy(windowedFft)
         const stats = this.statCalculators.energy(value)
         return { value, stats }
     }
 
     spectralCentroid = (fft) => {
-        const value = spectralCentroid(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralCentroid(applyKaiserWindow(windowedFft))
         const stats = this.statCalculators.spectralCentroid(value)
         return { value, stats }
     }
 
     spectralCrest = (fft) => {
-        const value = spectralCrest(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralCrest(windowedFft)
         const stats = this.statCalculators.spectralCentroid(value)
         return { value, stats }
     }
 
     spectralEntropy = (fft) => {
-        const value = spectralEntropy(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralEntropy(windowedFft)
         const stats = this.statCalculators.spectralEntropy(value)
         return { value, stats }
     }
 
     spectralFlux = (fft) => {
-        const value = spectralFlux(fft, this.previousValue.spectralFlux)
-        this.previousValue.spectralFlux = new Uint8Array(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralFlux(windowedFft, this.previousValue.spectralFlux)
+        this.previousValue.spectralFlux = new Uint8Array(windowedFft)
         const stats = this.statCalculators.spectralFlux(value)
         return { value, stats }
     }
     spectralKurtosis = (fft) => {
-        const value = spectralKurtosis(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralKurtosis(windowedFft)
         const stats = this.statCalculators.spectralKurtosis(value)
         return { value, stats }
     }
 
     spectralRolloff = (fft) => {
-        const value = spectralRolloff(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralRolloff(windowedFft)
         const stats = this.statCalculators.spectralRolloff(value)
         return { value, stats }
     }
 
     spectralRoughness = (fft) => {
-        const value = spectralRoughness(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralRoughness(windowedFft)
         const stats = this.statCalculators.spectralRoughness(value)
         return { value, stats }
     }
 
     spectralSkew = (fft) => {
-        const value = spectralSkew(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralSkew(windowedFft)
         const stats = this.statCalculators.spectralSkew(value)
         return { value, stats }
     }
 
     spectralSpread = (fft) => {
-        const value = spectralSpread(fft)
+        const windowedFft = applyKaiserWindow(fft)
+        const value = spectralSpread(windowedFft)
         const stats = this.statCalculators.spectralSpread(value)
         return { value, stats }
     }
