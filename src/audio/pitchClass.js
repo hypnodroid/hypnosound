@@ -15,12 +15,12 @@ export default function pitchClass(fft) {
   }
   const dominantFreq = maxIndex * freqResolution;
 
-  // Convert to MIDI note then to pitch class
+  // Convert to MIDI note then to pitchClass class
   const midiNote = 69 + 12 * Math.log2(dominantFreq / 440);
   const pitchClass = midiNote % 12;
 
   // Normalize to a 0-1 range
-  const normalizedPitchClass = pitchClass / 12;
+  const normalizedpitchClass = pitchClass / 12;
 
-  return normalizedPitchClass;
+  return normalizedpitchClass;
 }

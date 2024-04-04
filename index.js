@@ -10,7 +10,7 @@ import spectralRolloff from './src/audio/spectralRolloff.js'
 import spectralRoughness from './src/audio/spectralRoughness.js'
 import spectralSkew from './src/audio/spectralSkew.js'
 import spectralSpread from './src/audio/spectralSpread.js'
-
+import pitchClass from './src/audio/pitchClass.js'
 class AudioProcessor {
     constructor() {
         // aah, state management
@@ -37,6 +37,8 @@ class AudioProcessor {
         this.statCalculators.spectralRoughness = makeCalculateStats()
 
         this.statCalculators.spectralSpread = makeCalculateStats()
+
+        this.statCalculators.pitchClass = makeCalculateStats()
     }
 
     energy = (fft) => {
@@ -106,6 +108,13 @@ class AudioProcessor {
         const windowedFft = applyKaiserWindow(fft)
         const value = spectralSpread(windowedFft)
         const stats = this.statCalculators.spectralSpread(value)
+        return { value, stats }
+    }
+
+    pitchClass = (fft) => {
+        const windowedFft = applyKaiserWindow(fft)
+        const value = pitchClass(windowedFft)
+        const stats = this.statCalculators.pitchClass(value)
         return { value, stats }
     }
 }

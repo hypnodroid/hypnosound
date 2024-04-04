@@ -19,7 +19,7 @@
                 const analyser = audioContext.createAnalyser();
 
                 source.connect(analyser);
-                analyser.fftSize = 32768; // Or whatever size you need
+                analyser.fftSize = 32768/2; // Or whatever size you need
                 analyser.smoothingTimeConstant = 0
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
@@ -30,18 +30,19 @@
                     analyser.getByteFrequencyData(dataArray);
 
                     // This is where the magic happens, but be careful what you log...
-                    console.log({
-                      energy: a.energy(dataArray),
-                      spectralCentroid: a.spectralCentroid(dataArray),
-                      spectralCrest: a.spectralCrest(dataArray),
-                      spectralEntropy: a.spectralEntropy(dataArray),
-                      spectralFlux: a.spectralFlux(dataArray),
-                      spectralKurtosis: a.spectralKurtosis(dataArray),
-                      spectralRolloff: a.spectralRolloff(dataArray),
-                      spectralRoughness: a.spectralRoughness(dataArray),
-                      spectralSkew: a.spectralSkew(dataArray),
-                      spectralSpread: a.spectralSpread(dataArray),
-                    });
+                    console.log(
+                    //   energy: a.energy(dataArray),
+                    //   spectralCentroid: a.spectralCentroid(dataArray),
+                    //   spectralCrest: a.spectralCrest(dataArray),
+                    //   spectralEntropy: a.spectralEntropy(dataArray),
+                    //   spectralFlux: a.spectralFlux(dataArray),
+                    //   spectralKurtosis: a.spectralKurtosis(dataArray),
+                    //   spectralRolloff: a.spectralRolloff(dataArray),
+                    //   spectralRoughness: a.spectralRoughness(dataArray),
+                    //   spectralSkew: a.spectralSkew(dataArray),
+                    //   spectralSpread: a.spectralSpread(dataArray),
+                    a.pitchClass(dataArray),
+                    );
                 };
 
                 draw();
