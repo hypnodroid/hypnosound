@@ -130,7 +130,8 @@ export {
     spectralRoughness,
     spectralSkew,
     spectralSpread,
+    pitchClass,
     makeCalculateStats,
     StatTypes,
-    pitchClass,
+    applyKaiserWindow,
 }
