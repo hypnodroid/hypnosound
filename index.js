@@ -1,4 +1,4 @@
-import { makeCalculateStats } from './src/utils/calculateStats.js'
+import { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
 import {applyKaiserWindow} from './src/utils/applyKaiserWindow.js'
 import energy from './src/audio/energy.js'
 import spectralCentroid from './src/audio/spectralCentroid.js'
@@ -131,4 +131,6 @@ export {
     spectralSkew,
     spectralSpread,
     makeCalculateStats,
+    StatTypes,
+    pitchClass,
 }
