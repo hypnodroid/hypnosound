@@ -1,3 +1,4 @@
+export const StatTypes = ['normalized', 'mean', 'median', 'standardDeviation', 'zScore', 'min', 'max']
 export function makeCalculateStats(historySize = 500) {
     let history = [];
 
