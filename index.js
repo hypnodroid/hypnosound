@@ -1,4 +1,4 @@
-import { makeCalculateStats } from './src/utils/calculateStats.js'
+import { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
 import {applyKaiserWindow} from './src/utils/applyKaiserWindow.js'
 import energy from './src/audio/energy.js'
 import spectralCentroid from './src/audio/spectralCentroid.js'
@@ -10,7 +10,7 @@ import spectralRolloff from './src/audio/spectralRolloff.js'
 import spectralRoughness from './src/audio/spectralRoughness.js'
 import spectralSkew from './src/audio/spectralSkew.js'
 import spectralSpread from './src/audio/spectralSpread.js'
-
+import pitchClass from './src/audio/pitchClass.js'
 class AudioProcessor {
     constructor() {
         // aah, state management
@@ -37,6 +37,8 @@ class AudioProcessor {
         this.statCalculators.spectralRoughness = makeCalculateStats()
 
         this.statCalculators.spectralSpread = makeCalculateStats()
+
+        this.statCalculators.pitchClass = makeCalculateStats()
     }
 
     energy = (fft) => {
@@ -108,6 +110,13 @@ class AudioProcessor {
         const stats = this.statCalculators.spectralSpread(value)
         return { value, stats }
     }
+
+    pitchClass = (fft) => {
+        const windowedFft = applyKaiserWindow(fft)
+        const value = pitchClass(windowedFft)
+        const stats = this.statCalculators.pitchClass(value)
+        return { value, stats }
+    }
 }
 export default AudioProcessor
 export {
@@ -121,5 +130,8 @@ export {
     spectralRoughness,
     spectralSkew,
     spectralSpread,
+    pitchClass,
     makeCalculateStats,
+    StatTypes,
+    applyKaiserWindow,
 }
