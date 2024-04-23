@@ -175,8 +175,8 @@ export function makeCalculateStats(historySize = 500) {
 
         let mean = sum / queue.length
         let variance = sumOfSquares / queue.length - mean * mean
-        let min = minQueue.length ? minQueue[0] : Infinity
-        let max = maxQueue.length ? maxQueue[0] : -Infinity
+        let min = minQueue.length ? minQueue[0] : 0
+        let max = maxQueue.length ? maxQueue[0] : 0
         let median = calculateMedian()
         let mad = calculateMAD(median)
 
