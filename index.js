@@ -1,5 +1,5 @@
 import { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
-import {applyKaiserWindow} from './src/utils/applyKaiserWindow.js'
+import { applyKaiserWindow } from './src/utils/applyKaiserWindow.js'
 import energy from './src/audio/energy.js'
 import spectralCentroid from './src/audio/spectralCentroid.js'
 import spectralCrest from './src/audio/spectralCrest.js'
@@ -49,7 +49,6 @@ class AudioProcessor {
 
         this.statCalculators.mids = makeCalculateStats()
     }
-
 
     energy = (fft) => {
         const windowedFft = applyKaiserWindow(fft)
