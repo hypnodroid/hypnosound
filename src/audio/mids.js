@@ -1,11 +1,11 @@
 export default function mids(fft) {
-  const sampleRate = 44100;
-  const totalSamples = fft.length;
+  const sampleRate = 44100
+  const totalSamples = fft.length
   return calculateMidPower(fft, sampleRate, totalSamples);
 }
 
 function calculateMidPower(fft, sampleRate, totalSamples) {
-  const lowerBound = 250; // 250 Hz
+  const lowerBound = 400; // 400 Hz
   const upperBound = 4000; // 4000 Hz
   let midEnergy = 0;
   let maxEnergy = 0;
