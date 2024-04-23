@@ -178,12 +178,12 @@ export function makeCalculateStats(historySize = 500) {
         let min = minQueue.length ? minQueue[0] : 0
         let max = maxQueue.length ? maxQueue[0] : 0
         let median = calculateMedian()
-        let mad = calculateMAD(value)
+        let normalized = queue.length ? (value - min) / (max - min) : 0
 
         return {
             current: value,
             zScore: (variance ? (value - mean) / Math.sqrt(variance) : 0) / 6,
-            normalized: mad, // Using MAD normalization as 'normalized'
+            normalized, // Using MAD normalization as 'normalized'
             standardDeviation: Math.sqrt(variance),
             median,
             mean,
