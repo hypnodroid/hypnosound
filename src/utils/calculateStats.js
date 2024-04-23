@@ -178,7 +178,7 @@ export function makeCalculateStats(historySize = 500) {
         let min = minQueue.length ? minQueue[0] : 0
         let max = maxQueue.length ? maxQueue[0] : 0
         let median = calculateMedian()
-        let mad = calculateMAD(median)
+        let mad = calculateMAD(value)
 
         return {
             current: value,

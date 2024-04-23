@@ -26,7 +26,6 @@ function calculateBassPower(fft, sampleRate, totalSamples) {
             bassEnergy += power
         }
     }
-    console.log({ bassEnergy, maxEnergy })
     // Normalize bass energy from 0 to 1
     let normalizedBassPower = bassEnergy / maxEnergy
     return isNaN(normalizedBassPower) ? 0 : normalizedBassPower // Scale by 10 if needed, similar to your original function
