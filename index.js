@@ -11,6 +11,9 @@ import spectralRoughness from './src/audio/spectralRoughness.js'
 import spectralSkew from './src/audio/spectralSkew.js'
 import spectralSpread from './src/audio/spectralSpread.js'
 import pitchClass from './src/audio/pitchClass.js'
+import bass from './src/audio/bass.js'
+import treble from './src/audio/treble.js'
+import mids from './src/audio/mids.js'
 class AudioProcessor {
     constructor() {
         // aah, state management
@@ -39,7 +42,14 @@ class AudioProcessor {
         this.statCalculators.spectralSpread = makeCalculateStats()
 
         this.statCalculators.pitchClass = makeCalculateStats()
+
+        this.statCalculators.bass = makeCalculateStats()
+
+        this.statCalculators.treble = makeCalculateStats()
+
+        this.statCalculators.mids = makeCalculateStats()
     }
+
 
     energy = (fft) => {
         const windowedFft = applyKaiserWindow(fft)
@@ -115,6 +125,24 @@ class AudioProcessor {
         const windowedFft = applyKaiserWindow(fft)
         const value = pitchClass(windowedFft)
         const stats = this.statCalculators.pitchClass(value)
+        return { value, stats }
+    }
+    bass = (fft) => {
+        const windowedFft = applyKaiserWindow(fft)
+        const value = bass(windowedFft)
+        const stats = this.statCalculators.bass(value)
+        return { value, stats }
+    }
+    treble = (fft) => {
+        const windowedFft = applyKaiserWindow(fft)
+        const value = treble(windowedFft)
+        const stats = this.statCalculators.treble(value)
+        return { value, stats }
+    }
+    mids = (fft) => {
+        const windowedFft = applyKaiserWindow(fft)
+        const value = mids(windowedFft)
+        const stats = this.statCalculators.mids(value)
         return { value, stats }
     }
 }
