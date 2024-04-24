@@ -139,22 +139,6 @@ export function makeCalculateStats(historySize = 500) {
         }
     }
 
-    function calculateMAD(median) {
-        let deviations = queue.map((value) => Math.abs(value - median))
-        let mad = medianAbsoluteDeviation(deviations)
-        return mad
-    }
-
-    function medianAbsoluteDeviation(values) {
-        if (values.length === 0) {
-            return 0
-        }
-        let median = calculateMedian(values)
-        let absoluteDeviations = values.map((value) => Math.abs(value - median))
-        let medianAbsoluteDeviation = calculateMedian(absoluteDeviations)
-        return medianAbsoluteDeviation
-    }
-
     return function calculateStats(value) {
         if (typeof value !== 'number') throw new Error('Input must be a number')
 
@@ -183,7 +167,7 @@ export function makeCalculateStats(historySize = 500) {
         return {
             current: value,
             zScore: (variance ? (value - mean) / Math.sqrt(variance) : 0) / 6,
-            normalized, // Using MAD normalization as 'normalized'
+            normalized,
             standardDeviation: Math.sqrt(variance),
             median,
             mean,
