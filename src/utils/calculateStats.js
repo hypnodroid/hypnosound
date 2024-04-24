@@ -188,7 +188,7 @@ export function makeCalculateStats(historySize = 500) {
         let zScore = variance ? (value - mean) / Math.sqrt(variance) : 0
         return {
             current: value,
-            zScore: normalizeZScore(zScore),
+            zScore: zScore / 2.5,
             normalized,
             standardDeviation: Math.sqrt(variance),
             median,
