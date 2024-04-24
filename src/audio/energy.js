@@ -9,5 +9,5 @@ function calculateFFTEnergy(currentSignal) {
         energy += normalizedValue * normalizedValue
     }
 
-    return energy * 10
+    return energy * 2
 }
