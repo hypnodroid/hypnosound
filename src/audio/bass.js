@@ -5,8 +5,8 @@ export default function bass(fft) {
 }
 
 function calculateBassPower(fft, sampleRate, totalSamples) {
-    const lowerBound = 20 // 20 Hz
-    const upperBound = 160 // 160 Hz
+    const lowerBound = 0
+    const upperBound = 400
     let bassEnergy = 0
     let maxEnergy = 0
 
