@@ -1,32 +1,32 @@
 {
-  "name": "hypnosound",
-  "type": "module",
-  "version": "1.5.7",
-  "description": "A small library for analyzing audio",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "live-server .",
-    "format": "eslint --fix ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hypnodroid/hypnosound.git"
-  },
-  "keywords": [
-    "Audio",
-    "sound",
-    "music"
-  ],
-  "author": "redaphid <iam@aaronherres.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/hypnodroid/hypnosound/issues"
-  },
-  "homepage": "https://github.com/hypnodroid/hypnosound#readme",
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "live-server": "^1.2.2"
-  }
+    "name": "hypnosound",
+    "type": "module",
+    "version": "1.6.0",
+    "description": "A small library for analyzing audio",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "live-server .",
+        "format": "eslint --fix ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hypnodroid/hypnosound.git"
+    },
+    "keywords": [
+        "Audio",
+        "sound",
+        "music"
+    ],
+    "author": "redaphid <iam@aaronherres.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/hypnodroid/hypnosound/issues"
+    },
+    "homepage": "https://github.com/hypnodroid/hypnosound#readme",
+    "devDependencies": {
+        "eslint": "^8.57.0",
+        "eslint-plugin-prettier": "^5.1.3",
+        "live-server": "^1.2.2"
+    }
 }
