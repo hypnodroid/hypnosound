@@ -8,6 +8,5 @@ function calculateFFTEnergy(currentSignal) {
         let normalizedValue = currentSignal[i] / currentSignal.length
         energy += normalizedValue * normalizedValue
     }
-
-    return energy * 2
+    return energy
 }

@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Audio Capture and Analysis</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
 
     <body>
@@ -25,34 +26,77 @@
                     const bufferLength = analyser.frequencyBinCount
                     const dataArray = new Uint8Array(bufferLength)
 
-                    const draw = () => {
-                        requestAnimationFrame(draw)
+                    const update = () => {
+                        requestAnimationFrame(update)
 
                         analyser.getByteFrequencyData(dataArray)
 
                         // This is where the magic happens, but be careful what you log...
-                        console.log({
-                            //   energy: a.energy(dataArray),
-                            //   spectralCentroid: a.spectralCentroid(dataArray),
-                            //   spectralCrest: a.spectralCrest(dataArray),
-                            //   spectralEntropy: a.spectralEntropy(dataArray),
-                            //   spectralFlux: a.spectralFlux(dataArray),
-                            //   spectralKurtosis: a.spectralKurtosis(dataArray),
-                            //   spectralRolloff: a.spectralRolloff(dataArray),
-                            //   spectralRoughness: a.spectralRoughness(dataArray),
-                            //   spectralSkew: a.spectralSkew(dataArray),
-                            //   spectralSpread: a.spectralSpread(dataArray),
+                        window.audioSignals = {
+                            energy: a.energy(dataArray),
+                            spectralCentroid: a.spectralCentroid(dataArray),
+                            spectralCrest: a.spectralCrest(dataArray),
+                            spectralEntropy: a.spectralEntropy(dataArray),
+                            spectralFlux: a.spectralFlux(dataArray),
+                            spectralKurtosis: a.spectralKurtosis(dataArray),
+                            spectralRolloff: a.spectralRolloff(dataArray),
+                            spectralRoughness: a.spectralRoughness(dataArray),
+                            spectralSkew: a.spectralSkew(dataArray),
+                            spectralSpread: a.spectralSpread(dataArray),
                             bass: a.bass(dataArray),
                             mids: a.mids(dataArray),
                             treble: a.treble(dataArray),
-                        })
+                        }
                     }
 
-                    draw()
+                    update()
                 } catch (error) {
                     console.error('Something went wrong:', error)
                 }
             })
+        </script>
+        <canvas id="myBarChart" width="800" height="400"></canvas>
+        <script>
+            var ctx = document.getElementById('myBarChart').getContext('2d')
+            var myBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [], // Initial empty labels
+                    datasets: [
+                        {
+                            label: 'Audio Data',
+                            data: [], // Initial empty data
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                    responsive: true,
+                    animation: {
+                        duration: 0, // Turn off animation for instant updates
+                    },
+                },
+            })
+
+            // Function to update the chart with a new data object
+            function updateChartData(newData) {
+                myBarChart.data.labels = Object.keys(newData)
+                myBarChart.data.datasets[0].data = Object.values(newData).map(({value})=>value);
+                myBarChart.update()
+            }
+
+            function render() {
+                requestAnimationFrame(render)
+                updateChartData(window.audioSignals || {})
+            }
+            render()
         </script>
     </body>
 </html>
