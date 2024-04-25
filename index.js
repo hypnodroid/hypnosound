@@ -51,96 +51,82 @@ class AudioProcessor {
     }
 
     energy = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = energy(windowedFft)
+        const value = energy(fft)
         const stats = this.statCalculators.energy(value)
         return { value, stats }
     }
 
     spectralCentroid = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralCentroid(applyKaiserWindow(windowedFft))
+        const value = spectralCentroid(applyKaiserWindow(fft))
         const stats = this.statCalculators.spectralCentroid(value)
         return { value, stats }
     }
 
     spectralCrest = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralCrest(windowedFft)
+        const value = spectralCrest(fft)
         const stats = this.statCalculators.spectralCentroid(value)
         return { value, stats }
     }
 
     spectralEntropy = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralEntropy(windowedFft)
+        const value = spectralEntropy(fft)
         const stats = this.statCalculators.spectralEntropy(value)
         return { value, stats }
     }
 
     spectralFlux = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralFlux(windowedFft, this.previousValue.spectralFlux)
-        this.previousValue.spectralFlux = new Uint8Array(windowedFft)
+        const value = spectralFlux(fft, this.previousValue.spectralFlux)
+        this.previousValue.spectralFlux = new Uint8Array(fft)
         const stats = this.statCalculators.spectralFlux(value)
         return { value, stats }
     }
     spectralKurtosis = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralKurtosis(windowedFft)
+        const value = spectralKurtosis(fft)
         const stats = this.statCalculators.spectralKurtosis(value)
         return { value, stats }
     }
 
     spectralRolloff = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralRolloff(windowedFft)
+        const value = spectralRolloff(fft)
         const stats = this.statCalculators.spectralRolloff(value)
         return { value, stats }
     }
 
     spectralRoughness = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralRoughness(windowedFft)
+        const value = spectralRoughness(fft)
         const stats = this.statCalculators.spectralRoughness(value)
         return { value, stats }
     }
 
     spectralSkew = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralSkew(windowedFft)
+        const value = spectralSkew(fft)
         const stats = this.statCalculators.spectralSkew(value)
         return { value, stats }
     }
 
     spectralSpread = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = spectralSpread(windowedFft)
+        const value = spectralSpread(fft)
         const stats = this.statCalculators.spectralSpread(value)
         return { value, stats }
     }
 
     pitchClass = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = pitchClass(windowedFft)
+        const value = pitchClass(fft)
         const stats = this.statCalculators.pitchClass(value)
         return { value, stats }
     }
     bass = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = bass(windowedFft)
+        const value = bass(fft)
         const stats = this.statCalculators.bass(value)
         return { value, stats }
     }
     treble = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = treble(windowedFft)
+        const value = treble(fft)
         const stats = this.statCalculators.treble(value)
         return { value, stats }
     }
     mids = (fft) => {
-        const windowedFft = applyKaiserWindow(fft)
-        const value = mids(windowedFft)
+        const value = mids(fft)
         const stats = this.statCalculators.mids(value)
         return { value, stats }
     }

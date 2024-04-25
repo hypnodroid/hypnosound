@@ -18,11 +18,16 @@
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)()
                     const source = audioContext.createMediaStreamSource(stream)
-                    const analyser = audioContext.createAnalyser()
 
-                    source.connect(analyser)
-                    analyser.fftSize = 32768 / 2 // Or whatever size you need
-                    analyser.smoothingTimeConstant = 0
+                    const analyser = audioContext.createAnalyser()
+                    analyser.fftSize = 32768
+                    analyser.smoothingTimeConstant = 0.5
+
+                    await audioContext.audioWorklet.addModule('window-processor.js') // Path to your processor file
+                    const windowNode = new AudioWorkletNode(audioContext, 'window-processor')
+
+                    source.connect(windowNode)
+                    windowNode.connect(analyser)
                     const bufferLength = analyser.frequencyBinCount
                     const dataArray = new Uint8Array(bufferLength)
 
@@ -30,7 +35,6 @@
                         requestAnimationFrame(update)
 
                         analyser.getByteFrequencyData(dataArray)
-
                         // This is where the magic happens, but be careful what you log...
                         window.audioSignals = {
                             energy: a.energy(dataArray),
@@ -46,7 +50,9 @@
                             bass: a.bass(dataArray),
                             mids: a.mids(dataArray),
                             treble: a.treble(dataArray),
+                            pitchClass: a.pitchClass(dataArray),
                         }
+                        window.fft = dataArray
                     }
 
                     update()
@@ -56,6 +62,7 @@
             })
         </script>
         <canvas id="myBarChart" width="800" height="400"></canvas>
+        <canvas id="fftBarChart" width="800" height="400"></canvas>
         <script>
             var ctx = document.getElementById('myBarChart').getContext('2d')
             var myBarChart = new Chart(ctx, {
@@ -88,7 +95,7 @@
             // Function to update the chart with a new data object
             function updateChartData(newData) {
                 myBarChart.data.labels = Object.keys(newData)
-                myBarChart.data.datasets[0].data = Object.values(newData).map(({value})=>value);
+                myBarChart.data.datasets[0].data = Object.values(newData).map(({ value }) => value || 0)
                 myBarChart.update()
             }
 

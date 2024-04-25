@@ -15,7 +15,8 @@ function calculateBassPower(fft, sampleRate, totalSamples) {
 
     for (let i = 0; i < fft.length; i++) {
         let frequency = i * frequencyResolution
-        let magnitude = Math.abs(fft[i]) / totalSamples
+        // Normalize each FFT value from 0 to 1 (assuming Uint8Array values 0-255)
+        let magnitude = fft[i] / 255
         let power = magnitude * magnitude
 
         // Accumulate max energy for normalization
@@ -26,7 +27,8 @@ function calculateBassPower(fft, sampleRate, totalSamples) {
             bassEnergy += power
         }
     }
+
     // Normalize bass energy from 0 to 1
-    let normalizedBassPower = bassEnergy / maxEnergy
-    return isNaN(normalizedBassPower) ? 0 : normalizedBassPower // Scale by 10 if needed, similar to your original function
+    let normalizedBassPower = maxEnergy > 0 ? bassEnergy / maxEnergy : 0
+    return isNaN(normalizedBassPower) ? 0 : normalizedBassPower
 }
