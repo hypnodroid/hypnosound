@@ -5,9 +5,8 @@
     "description": "A small library for analyzing audio",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "live-server .",
-        "format": "eslint --fix ."
+        "start": "python -m http.server 1337",
+        "build": "bun scripts/generate-barrel.mjs"
     },
     "repository": {
         "type": "git",
@@ -23,10 +22,5 @@
     "bugs": {
         "url": "https://github.com/hypnodroid/hypnosound/issues"
     },
-    "homepage": "https://github.com/hypnodroid/hypnosound#readme",
-    "devDependencies": {
-        "eslint": "^8.57.0",
-        "eslint-plugin-prettier": "^5.1.3",
-        "live-server": "^1.2.2"
-    }
+    "homepage": "https://github.com/hypnodroid/hypnosound#readme"
 }
