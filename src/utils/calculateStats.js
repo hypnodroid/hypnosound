@@ -1,4 +1,4 @@
-export const StatTypes = ['normalized', 'mean', 'median', 'standardDeviation', 'zScore', 'min', 'max']
+export const StatTypes = ['normalized', 'mean', 'median', 'standardDeviation', 'zScore', 'min', 'max', 'slope', 'intercept', 'rSquared']
 
 const erf = (x) => {
     const a1 = 0.254829592
@@ -150,6 +150,44 @@ export const makeCalculateStats = (historySize = 500) => {
         return lowerHalf[0]
     }
 
+    // Calculate linear regression using least squares method
+    // Uses indices 0 to n-1 as x values, queue values as y values
+    const calculateLinearRegression = (mean) => {
+        const n = queue.length
+        if (n < 2) return { slope: 0, intercept: mean, rSquared: 0 }
+
+        // For x = 0, 1, 2, ..., n-1:
+        // sumX = n*(n-1)/2
+        // sumXX = n*(n-1)*(2n-1)/6
+        const sumX = (n * (n - 1)) / 2
+        const sumXX = (n * (n - 1) * (2 * n - 1)) / 6
+
+        // Calculate sumXY = sum of (i * queue[i])
+        let sumXYCalc = 0
+        for (let i = 0; i < n; i++) {
+            sumXYCalc += i * queue[i]
+        }
+
+        const denominator = n * sumXX - sumX * sumX
+        if (denominator === 0) return { slope: 0, intercept: mean, rSquared: 0 }
+
+        const slope = (n * sumXYCalc - sumX * sum) / denominator
+        const intercept = (sum - slope * sumX) / n
+
+        // Calculate R-squared (coefficient of determination)
+        let ssRes = 0  // Sum of squared residuals
+        let ssTot = 0  // Total sum of squares
+        for (let i = 0; i < n; i++) {
+            const predicted = slope * i + intercept
+            ssRes += (queue[i] - predicted) ** 2
+            ssTot += (queue[i] - mean) ** 2
+        }
+
+        const rSquared = ssTot === 0 ? 1 : 1 - ssRes / ssTot
+
+        return { slope, intercept, rSquared }
+    }
+
     const calculate = (value) => {
         if (typeof value !== 'number' || isNaN(value)) throw new Error('Input must be a valid number')
 
@@ -175,6 +213,8 @@ export const makeCalculateStats = (historySize = 500) => {
         const min = minQueue.peek() || 0
         const max = maxQueue.peek() || 0
 
+        const regression = calculateLinearRegression(mean)
+
         if (max === min) {
             return {
                 current: value,
@@ -185,6 +225,9 @@ export const makeCalculateStats = (historySize = 500) => {
                 mean,
                 min,
                 max,
+                slope: regression.slope,
+                intercept: regression.intercept,
+                rSquared: regression.rSquared,
             }
         }
 
@@ -198,6 +241,9 @@ export const makeCalculateStats = (historySize = 500) => {
             mean,
             min,
             max,
+            slope: regression.slope,
+            intercept: regression.intercept,
+            rSquared: regression.rSquared,
         }
     }
 
