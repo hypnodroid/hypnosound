@@ -6,7 +6,9 @@
     "main": "index.js",
     "scripts": {
         "start": "python -m http.server 1337",
-        "build": "bun scripts/generate-barrel.mjs"
+        "build": "bun scripts/generate-barrel.mjs",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "repository": {
         "type": "git",
@@ -22,5 +24,8 @@
     "bugs": {
         "url": "https://github.com/hypnodroid/hypnosound/issues"
     },
-    "homepage": "https://github.com/hypnodroid/hypnosound#readme"
+    "homepage": "https://github.com/hypnodroid/hypnosound#readme",
+    "devDependencies": {
+        "vitest": "^4.0.18"
+    }
 }
