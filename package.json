@@ -1,7 +1,7 @@
 {
     "name": "hypnosound",
     "type": "module",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "description": "A small library for analyzing audio",
     "main": "index.js",
     "scripts": {
