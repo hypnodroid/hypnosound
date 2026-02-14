@@ -28,6 +28,10 @@ describe('module exports', () => {
         expect(typeof hypnosound.applyKaiserWindow).toBe('function')
     })
 
+    it('exports normalizeInput', () => {
+        expect(typeof hypnosound.normalizeInput).toBe('function')
+    })
+
     it('exports AudioFeatures array', () => {
         expect(Array.isArray(hypnosound.AudioFeatures)).toBe(true)
         expect(hypnosound.AudioFeatures.length).toBe(16)
