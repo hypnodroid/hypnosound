@@ -8,27 +8,27 @@ import { silence, uniform, singleBin, risingSpectrum, fallingSpectrum, fullScale
 
 describe('spectralCentroid', () => {
     it('returns null-based 0 for silence (all zeros)', () => {
-        // denominator is 0, returns null * 1.5 which is 0 via coercion
+        // denominator is 0, returns null via coercion to 0
         const val = spectralCentroid(silence())
         expect(val).toBe(0)
     })
 
-    it('returns ~0.5 * 1.5 for uniform spectrum (center of mass at middle)', () => {
+    it('returns ~0.5 for uniform spectrum (center of mass at middle)', () => {
         const val = spectralCentroid(uniform())
-        // Uniform spectrum: centroid is at (n-1)/2 / (n-1) = 0.5, * 1.5 = 0.75
-        expect(val).toBeCloseTo(0.75, 1)
+        // Uniform spectrum: centroid is at (n-1)/2 / (n-1) = 0.5
+        expect(val).toBeCloseTo(0.5, 1)
     })
 
     it('is low for energy concentrated in low bins', () => {
         const fft = singleBin(1024, 1, 255) // bin 1
         const val = spectralCentroid(fft)
-        expect(val).toBeLessThan(0.1)
+        expect(val).toBeLessThan(0.01)
     })
 
     it('is high for energy concentrated in high bins', () => {
         const fft = singleBin(1024, 1000, 255)
         const val = spectralCentroid(fft)
-        expect(val).toBeGreaterThan(1.0) // ~1.5 * (1000/1023) ≈ 1.47
+        expect(val).toBeGreaterThan(0.9) // 1000/1023 ≈ 0.978
     })
 
     it('rising spectrum has higher centroid than falling spectrum', () => {
@@ -111,15 +111,15 @@ describe('spectralRolloff', () => {
 
 describe('spectralCrest', () => {
     it('is high for peaky spectrum (single bin)', () => {
-        // Single bin: max/sum = 255/255 = 1, * 100 = 100
+        // Single bin: max/sum = 255/255 = 1.0
         const fft = singleBin(1024, 512, 255)
-        expect(spectralCrest(fft)).toBeCloseTo(100, 1)
+        expect(spectralCrest(fft)).toBeCloseTo(1.0, 1)
     })
 
     it('is low for uniform spectrum (flat)', () => {
-        // Uniform: max/sum = 128 / (1024*128) = 1/1024, * 100
+        // Uniform: max/sum = 128 / (1024*128) = 1/1024 ≈ 0.001
         const val = spectralCrest(uniform())
-        expect(val).toBeLessThan(1)
+        expect(val).toBeLessThan(0.01)
     })
 
     it('returns 0 for silence', () => {
