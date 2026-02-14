@@ -1,5 +1,4 @@
-export default function treble(fft) {
-    const sampleRate = 44100
+export default function treble(fft, sampleRate = 44100) {
     const totalSamples = fft.length
     return calculateTreblePower(fft, sampleRate, totalSamples)
 }
