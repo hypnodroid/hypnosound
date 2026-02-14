@@ -1,10 +1,12 @@
+import normalizeInput from '../utils/normalizeInput.js'
+
 export default function bass(fft) {
     const sampleRate = 44100
     const totalSamples = fft.length
-    return calculateBassPower(fft, sampleRate, totalSamples)
+    return calculateBassPower(normalizeInput(fft), sampleRate, totalSamples)
 }
 
-function calculateBassPower(fft, sampleRate, totalSamples) {
+function calculateBassPower(normalized, sampleRate, totalSamples) {
     const lowerBound = 0
     const upperBound = 400
     let bassEnergy = 0
@@ -13,10 +15,9 @@ function calculateBassPower(fft, sampleRate, totalSamples) {
     // Calculate frequency resolution
     const frequencyResolution = sampleRate / totalSamples
 
-    for (let i = 0; i < fft.length; i++) {
+    for (let i = 0; i < normalized.length; i++) {
         let frequency = i * frequencyResolution
-        // Normalize each FFT value from 0 to 1 (assuming Uint8Array values 0-255)
-        let magnitude = fft[i] / 255
+        let magnitude = normalized[i]
         let power = magnitude * magnitude
 
         // Accumulate max energy for normalization
