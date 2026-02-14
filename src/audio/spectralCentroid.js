@@ -1,6 +1,6 @@
 export default function spectralCentroid(fft) {
     const computed = calculateSpectralCentroid(fft) // Process FFT data
-    return computed * 1.5
+    return computed ?? 0
 }
 function calculateSpectralCentroid(ampSpectrum) {
     if (!ampSpectrum.length) return null // Early exit if the spectrum is empty

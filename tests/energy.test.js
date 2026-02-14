@@ -13,7 +13,7 @@ describe('energy', () => {
 
     it('returns a consistent value for uniform signal', () => {
         const val = energy(uniform(1024, 100))
-        expect(val).toBeCloseTo(100 * 100 / 1000, 5)
+        expect(val).toBeCloseTo((100 / 255) ** 2, 5)
     })
 
     it('scales with amplitude: louder signal has more energy', () => {
@@ -30,7 +30,7 @@ describe('energy', () => {
 
     it('single bin contributes proportionally to length', () => {
         const fft = singleBin(1024, 50, 200)
-        const expected = (200 * 200) / 1024 / 1000
+        const expected = (200 / 255) ** 2 / 1024
         expect(energy(fft)).toBeCloseTo(expected, 5)
     })
 
