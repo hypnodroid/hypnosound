@@ -1,4 +1,5 @@
-export default function pitchClass(fft, sampleRate = 44100) {
+export default function pitchClass(fft) {
+    const sampleRate = 44100
     // Constants for the FFT processing
     const fftSize = fft.length
     const freqResolution = sampleRate / fftSize
