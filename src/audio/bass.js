@@ -1,5 +1,4 @@
-export default function bass(fft) {
-    const sampleRate = 44100
+export default function bass(fft, sampleRate = 44100) {
     const totalSamples = fft.length
     return calculateBassPower(fft, sampleRate, totalSamples)
 }
