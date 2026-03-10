@@ -1,5 +1,6 @@
 import { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
 export * from './src/audio/index.js'
+export { makeOnsetDetector } from './src/audio/onsetDetection.js'
 export { applyKaiserWindow } from './src/utils/applyKaiserWindow.js'
 export { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
 import * as audio from './src/audio/index.js'
