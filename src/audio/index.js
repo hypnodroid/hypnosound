@@ -6,6 +6,7 @@ export { default as pitchClass } from "./pitchClass.js"
 export { default as spectralRoughness } from "./spectralRoughness.js"
 export { default as spectralKurtosis } from "./spectralKurtosis.js"
 export { default as spectralCrest } from "./spectralCrest.js"
+export { default as zeroCrossingRate } from "./zeroCrossingRate.js"
 export { default as rms } from "./rms.js"
 export { default as spectralCentroid } from "./spectralCentroid.js"
 export { default as spectralEntropy } from "./spectralEntropy.js"
@@ -23,6 +24,7 @@ export const AudioFeatures = [
   "spectralRoughness",
   "spectralKurtosis",
   "spectralCrest",
+  "zeroCrossingRate",
   "rms",
   "spectralCentroid",
   "spectralEntropy",
