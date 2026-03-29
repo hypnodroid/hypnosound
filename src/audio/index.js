@@ -14,6 +14,7 @@ export { default as spectralFlux } from "./spectralFlux.js"
 export { default as energy } from "./energy.js"
 export { default as bass } from "./bass.js"
 export { default as spectralRolloff } from "./spectralRolloff.js"
+export { default as spectralFlatness } from "./spectralFlatness.js"
 export const AudioFeatures = [
   "spectralSpread",
   "treble",
@@ -30,5 +31,6 @@ export const AudioFeatures = [
   "spectralFlux",
   "energy",
   "bass",
-  "spectralRolloff"
+  "spectralRolloff",
+  "spectralFlatness"
 ]
