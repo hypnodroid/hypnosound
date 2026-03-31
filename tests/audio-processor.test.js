@@ -125,4 +125,90 @@ describe('AudioProcessor', () => {
             })
         }
     })
+
+    describe('configurable historySize', () => {
+        it('works with default options (backward compatible)', () => {
+            const processor = new AudioProcessor()
+            for (const feature of AudioFeatures) {
+                expect(typeof processor[feature]).toBe('function')
+            }
+            const result = processor.energy(uniform())
+            expect(result).toHaveProperty('value')
+            expect(result).toHaveProperty('stats')
+        })
+
+        it('accepts historySize option', () => {
+            const processor = new AudioProcessor({ historySize: 10 })
+            for (const feature of AudioFeatures) {
+                expect(typeof processor[feature]).toBe('function')
+            }
+            const result = processor.energy(uniform())
+            expect(result).toHaveProperty('value')
+            expect(result).toHaveProperty('stats')
+        })
+
+        it('smaller history window only retains recent samples for stats', () => {
+            const processor = new AudioProcessor({ historySize: 10 })
+
+            // Feed 15 samples of low values (value=10)
+            for (let i = 0; i < 15; i++) {
+                processor.energy(uniform(1024, 10))
+            }
+
+            // Now feed 10 samples of high values (value=200)
+            // With historySize=10, the low values should be fully evicted
+            for (let i = 0; i < 10; i++) {
+                processor.energy(uniform(1024, 200))
+            }
+
+            const result = processor.energy(uniform(1024, 200))
+            // The min should reflect only the last 10 samples (all high values),
+            // not the earlier low values. With historySize=10, the low values
+            // from the first 15 samples should have been evicted.
+            const energyOf200 = result.value // energy of uniform(1024, 200)
+            expect(result.stats.min).toBe(energyOf200)
+        })
+
+        it('larger history window retains older samples', () => {
+            const processor = new AudioProcessor({ historySize: 100 })
+
+            // Feed 5 samples of low values
+            for (let i = 0; i < 5; i++) {
+                processor.energy(uniform(1024, 10))
+            }
+
+            // Feed 10 samples of high values
+            let result
+            for (let i = 0; i < 10; i++) {
+                result = processor.energy(uniform(1024, 200))
+            }
+
+            // With historySize=100, the old low values are still in the window
+            // so the min should reflect them, not the recent high values
+            expect(result.stats.min).not.toBe(result.stats.max)
+        })
+
+        it('historySize=10 evicts old values while historySize=500 retains them', () => {
+            const smallProcessor = new AudioProcessor({ historySize: 10 })
+            const defaultProcessor = new AudioProcessor()
+
+            // Feed both processors the same 15 low then 15 high values
+            for (let i = 0; i < 15; i++) {
+                smallProcessor.energy(uniform(1024, 10))
+                defaultProcessor.energy(uniform(1024, 10))
+            }
+            let smallResult, defaultResult
+            for (let i = 0; i < 15; i++) {
+                smallResult = smallProcessor.energy(uniform(1024, 200))
+                defaultResult = defaultProcessor.energy(uniform(1024, 200))
+            }
+
+            // The small processor should have evicted the low values
+            // so its min should equal the high value energy
+            // The default processor (historySize=500) retains all 30 samples
+            // so its min should still reflect the low values
+            expect(smallResult.stats.min).toBe(smallResult.value)
+            expect(defaultResult.stats.min).not.toBe(defaultResult.value)
+        })
+    })
 })
