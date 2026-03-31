@@ -75,3 +75,35 @@ export function trebleHeavy(length = 1024) {
     }
     return fft
 }
+
+// --- Float32Array helpers (dB scale, typically from getFloatFrequencyData) ---
+
+// Simulate a Float32Array FFT output (dB values) from Web Audio API
+export function makeFloatFft(length, fill = -100) {
+    return new Float32Array(length).fill(fill)
+}
+
+// Float silence: all -100 dB (practical floor)
+export function floatSilence(length = 1024) {
+    return makeFloatFft(length, -100)
+}
+
+// Float full-scale: all 0 dB
+export function floatFullScale(length = 1024) {
+    return makeFloatFft(length, 0)
+}
+
+// Float uniform: all bins at the same dB value
+export function floatUniform(length = 1024, dbValue = -6) {
+    return makeFloatFft(length, dbValue)
+}
+
+// Float bass-heavy spectrum: high dB in low bins, very low dB elsewhere
+export function floatBassHeavy(length = 1024) {
+    const fft = new Float32Array(length).fill(-80)
+    const bassBins = Math.floor(length * (400 / 44100))
+    for (let i = 0; i < bassBins; i++) {
+        fft[i] = -6
+    }
+    return fft
+}
