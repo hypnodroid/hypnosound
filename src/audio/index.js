@@ -1,6 +1,5 @@
 export { default as spectralSpread } from "./spectralSpread.js"
 export { default as treble } from "./treble.js"
-export { default as onsetDetection } from "./onsetDetection.js"
 export { default as spectralSkew } from "./spectralSkew.js"
 export { default as dbfs } from "./dbfs.js"
 export { default as pitchClass } from "./pitchClass.js"
@@ -18,7 +17,6 @@ export { default as spectralRolloff } from "./spectralRolloff.js"
 export const AudioFeatures = [
   "spectralSpread",
   "treble",
-  "onsetDetection",
   "spectralSkew",
   "dbfs",
   "pitchClass",
