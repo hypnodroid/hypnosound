@@ -89,3 +89,153 @@ describe('makeOnsetDetector', () => {
         expect(defaultOnsetConfig.sensitivity).toBeGreaterThan(0)
     })
 })
+
+// ---------------------------------------------------------------------------
+// Regression tests for defects found by synthetic-ground-truth validation.
+// See scripts/test/onset-*.mjs for the harness that originally caught these.
+// ---------------------------------------------------------------------------
+
+const flat = (bins, v) => Uint8Array.from({ length: bins }, () => v)
+const sparseHit = (frame) => (frame % 20 === 0 ? flat(64, 200) : flat(64, 0))
+
+describe('config validation regressions', () => {
+    it('still detects when windowFrames is below the default warmupFrames', () => {
+        // Regression: history was capped at windowFrames while the ready gate
+        // required warmupFrames, so windowFrames < 12 could never fire — zero
+        // onsets forever, with no error. warmupFrames is now clamped.
+        for (const windowFrames of [1, 2, 3, 4, 8, 11]) {
+            const detect = makeOnsetDetector({ windowFrames })
+            let onsets = 0
+            for (let frame = 0; frame < 400; frame++) {
+                if (detect(sparseHit(frame), frame * FRAME_MS).onset) onsets++
+            }
+            expect(onsets, `windowFrames: ${windowFrames}`).toBeGreaterThan(0)
+        }
+    })
+
+    it('shrinks the flux history when windowFrames is lowered mid-stream', () => {
+        // Regression: `if (history.length > windowFrames) shift()` could only
+        // ever remove one entry per push, so the window never shrank and live
+        // re-tuning downward silently no-opped. Now a `while` loop.
+        const detect = makeOnsetDetector({ windowFrames: 64, fluxFloor: 0, sensitivity: 3, ratio: 1.5 })
+        let t = 0
+        for (let frame = 0; frame < 65; frame++) {
+            detect(frame % 2 ? flat(64, 250) : flat(64, 0), t)
+            t += FRAME_MS
+        }
+        // With a 1-frame window the median IS the current flux and MAD is 0,
+        // so the threshold must collapse to exactly ratio * flux.
+        // Stuck at 64 frames the threshold is 500; a genuine 3-frame window
+        // gives 375. windowFrames is floored at 3, so 3 is the tightest window.
+        const stuck = detect(flat(64, 250), t).threshold
+        expect(stuck).toBeCloseTo(500, 3)
+
+        const shrunk = makeOnsetDetector({ windowFrames: 64, fluxFloor: 0 })
+        let t2 = 0
+        for (let frame = 0; frame < 65; frame++) {
+            shrunk(frame % 2 ? flat(64, 250) : flat(64, 0), t2)
+            t2 += FRAME_MS
+        }
+        expect(shrunk(flat(64, 250), t2, { windowFrames: 3 }).threshold).toBeCloseTo(375, 3)
+    })
+
+    it('corrects an inverted or out-of-range band instead of dead-ending at zero flux', () => {
+        // Regression: lo was never clamped against hi, so lowBin > highBin (or a
+        // band past the end of the spectrum) pinned flux at 0 permanently with
+        // no signal to the caller. The resolved band is now returned.
+        for (const band of [
+            { lowBin: 20, highBin: 5 },
+            { lowBin: 5000, highBin: 5100 },
+            { lowBin: 0, highBin: 0 },
+        ]) {
+            const detect = makeOnsetDetector(band)
+            let maxFlux = 0
+            let resolved = null
+            for (let frame = 0; frame < 200; frame++) {
+                resolved = detect(frame % 20 === 0 ? flat(1024, 220) : flat(1024, 0), frame * FRAME_MS)
+                maxFlux = Math.max(maxFlux, resolved.flux)
+            }
+            expect(maxFlux, JSON.stringify(band)).toBeGreaterThan(0)
+            expect(resolved.highBin).toBeGreaterThan(resolved.lowBin)
+            expect(resolved.highBin).toBeLessThanOrEqual(1024)
+        }
+    })
+
+    it('recovers immediately when the caller clock jumps backwards', () => {
+        // Regression: a backwards jump left nowMs - lastOnsetAt negative, so the
+        // refractory never cleared and the detector went deaf for the whole jump
+        // (300 frames measured for 5s). timeSinceMs could also go negative.
+        const detect = makeOnsetDetector({ warmupFrames: 4, refractoryMs: 120 })
+        for (let frame = 0; frame < 100; frame++) detect(sparseHit(frame), frame * FRAME_MS)
+        let refiredWithin = null
+        for (let frame = 0; frame < 300; frame++) {
+            const r = detect(sparseHit(frame), -5000 + frame * FRAME_MS)
+            expect(r.timeSinceMs).toBeGreaterThanOrEqual(0)
+            if (r.onset) {
+                refiredWithin = frame
+                break
+            }
+        }
+        // Must refire by the next available hit, not after the clock catches up.
+        expect(refiredWithin).not.toBeNull()
+        expect(refiredWithin).toBeLessThanOrEqual(20)
+    })
+
+    it('re-warms rather than mixing scales when the spectrum length changes', () => {
+        const detect = makeOnsetDetector({ warmupFrames: 12 })
+        for (let frame = 0; frame < 60; frame++) detect(sparseHit(frame), frame * FRAME_MS)
+        // A resolution change invalidates the reference spectrum and the history.
+        const resized = detect(flat(256, 0), 60 * FRAME_MS)
+        expect(resized.flux).toBe(0)
+        expect(resized.onset).toBe(false)
+    })
+})
+
+// ---------------------------------------------------------------------------
+// CHARACTERIZATION TESTS — these pin KNOWN-IMPERFECT behavior.
+//
+// They assert what the detector currently does, NOT what it should do. Each
+// documents a measured design limitation. If you improve the algorithm these
+// SHOULD fail — update them deliberately rather than working around them.
+// ---------------------------------------------------------------------------
+
+describe('known limitations (characterization, not desired behavior)', () => {
+    it('KNOWN LIMITATION: fires once per cycle on sustained modulation with no transients', () => {
+        // A 4Hz broadband tremolo contains no transients at all, yet yields one
+        // onset per modulation cycle, because there is no local-maximum
+        // peak-picking stage — the first frame crossing the threshold fires.
+        // sensitivity does not help (3 and 6 both give the same count).
+        const detect = makeOnsetDetector()
+        let onsets = 0
+        const frames = 600 // 10s at 60fps
+        for (let frame = 0; frame < frames; frame++) {
+            const level = 128 + 120 * Math.sin((2 * Math.PI * 4 * frame) / 60)
+            if (detect(flat(512, Math.round(level)), frame * FRAME_MS).onset) onsets++
+        }
+        // A transient-free signal ideally yields ~0. It does not.
+        expect(onsets).toBeGreaterThan(20)
+    })
+
+    it('KNOWN LIMITATION: a narrow band false-fires on stationary noise', () => {
+        // Band-averaging over few bins leaves the median+MAD threshold unable to
+        // reject frame-uncorrelated noise. Scale-invariant, so not a tuning
+        // problem. Feeding smoothed frames (AnalyserNode default
+        // smoothingTimeConstant 0.8) restores full accuracy at every width.
+        // Must be frame-UNCORRELATED: the smooth sine in noiseAt() is too
+        // correlated between frames to reproduce this, which is the same reason
+        // AnalyserNode smoothing makes the problem disappear.
+        const hash = (a, b) => {
+            let x = (a * 374761393 + b * 668265263) >>> 0
+            x = ((x ^ (x >>> 13)) * 1274126177) >>> 0
+            return (x ^ (x >>> 16)) >>> 0
+        }
+        const detect = makeOnsetDetector({ lowBin: 2, highBin: 10 })
+        let onsets = 0
+        for (let frame = 0; frame < 1200; frame++) {
+            const spectrum = Uint8Array.from({ length: 512 }, (_, i) => hash(frame, i) % 40)
+            if (detect(spectrum, frame * FRAME_MS).onset) onsets++
+        }
+        // An 8-bin band on a steady bed ideally yields 0. It does not.
+        expect(onsets).toBeGreaterThan(0)
+    })
+})
