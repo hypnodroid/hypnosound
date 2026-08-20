@@ -1,9 +1,14 @@
 {
     "name": "hypnosound",
     "type": "module",
-    "version": "1.14.0",
+    "version": "2.0.0",
     "description": "A small library for analyzing audio",
     "main": "index.js",
+    "files": [
+        "index.js",
+        "src/",
+        "window-processor.js"
+    ],
     "scripts": {
         "start": "python -m http.server 1337",
         "build": "bun scripts/generate-barrel.mjs",
