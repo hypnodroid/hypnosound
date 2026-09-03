@@ -28,6 +28,19 @@ describe('module exports', () => {
         expect(typeof hypnosound.applyKaiserWindow).toBe('function')
     })
 
+    it('exports the onset envelope generator', () => {
+        expect(typeof hypnosound.makeOnsetEnvelope).toBe('function')
+        expect(typeof hypnosound.envelopeFrom).toBe('function')
+        expect(typeof hypnosound.defaultEnvelopeConfig).toBe('object')
+    })
+
+    it('keeps the onset detector and envelope out of the AudioFeatures barrel', () => {
+        // They are stateful event/animation objects, not per-frame scalar
+        // features. paper-cranes spawns one worker per AudioFeatures entry.
+        expect(hypnosound.AudioFeatures).not.toContain('onset')
+        expect(hypnosound.AudioFeatures).not.toContain('onsetEnvelope')
+    })
+
     it('exports makeOnsetDetector', () => {
         expect(typeof hypnosound.makeOnsetDetector).toBe('function')
     })
