@@ -239,3 +239,116 @@ describe('known limitations (characterization, not desired behavior)', () => {
         expect(onsets).toBeGreaterThan(0)
     })
 })
+
+// ---------------------------------------------------------------------------
+// Hysteresis (Schmitt trigger). The refractory period is a purely TEMPORAL
+// gate — material that parks the flux above the threshold re-fires every
+// refractoryMs forever, a metronome locked to the timer rather than the music.
+// Requiring a fall back below releaseRatio * threshold makes one crossing yield
+// one onset however long it stays up.
+// ---------------------------------------------------------------------------
+
+describe('hysteresis', () => {
+    it('an accelerating riser fires a couple of times, not once per refractory period', () => {
+        // A riser/uplifter climbs for seconds with no discrete hit in it. Its
+        // flux keeps RISING, so it outruns the trailing median and stays over
+        // the threshold — the refractory period alone then machine-guns an
+        // onset every 120ms for as long as the build lasts.
+        const riser = (frame) => (frame < 60 ? 5 : Math.min(255, 5 + (frame - 60) ** 2 / 12))
+        const count = (releaseRatio) => {
+            const detect = makeOnsetDetector({ warmupFrames: 6, releaseRatio })
+            let onsets = 0
+            for (let frame = 0; frame < 240; frame++) {
+                onsets += detect(flat(256, Math.round(riser(frame))), frame * FRAME_MS).onset ? 1 : 0
+            }
+            return onsets
+        }
+        // Measured: 5 onsets ungated, 2 with the release gate.
+        expect(count(0)).toBeGreaterThanOrEqual(5)
+        expect(count(defaultOnsetConfig.releaseRatio)).toBeLessThanOrEqual(2)
+    })
+
+    it('releaseRatio 0 disables hysteresis rather than latching the detector off', () => {
+        // Regression: the re-arm test was `flux < releaseRatio * threshold`,
+        // which at releaseRatio 0 is `flux < 0` — never true. Disabling
+        // hysteresis silently made it permanent, deafening the detector after
+        // its first onset.
+        const detect = makeOnsetDetector({ releaseRatio: 0 })
+        let onsets = 0
+        for (let frame = 0; frame < 600; frame++) {
+            const isHit = frame >= 60 && frame % 30 === 0
+            const r = detect(makeSpectrum(frame, { noise: 20, hit: isHit ? 140 : 0 }), frame * FRAME_MS)
+            expect(r.armed).toBe(true)
+            if (r.onset) onsets++
+        }
+        expect(onsets).toBe(18)
+    })
+
+    it('re-arms once the flux falls back, so separated hits all still fire', () => {
+        const detect = makeOnsetDetector()
+        const hits = []
+        for (let frame = 0; frame < 600; frame++) {
+            const isHit = frame >= 60 && frame % 30 === 0
+            const r = detect(makeSpectrum(frame, { noise: 20, hit: isHit ? 140 : 0 }), frame * FRAME_MS)
+            if (r.onset) hits.push(frame)
+        }
+        expect(hits).toHaveLength(18)
+        expect(hits.every((f) => f % 30 === 0)).toBe(true)
+    })
+
+    it('reports its armed state', () => {
+        const detect = makeOnsetDetector()
+        let sawDisarmed = false
+        for (let frame = 0; frame < 200; frame++) {
+            const r = detect(makeSpectrum(frame, { noise: 20, hit: frame === 100 ? 200 : 0 }), frame * FRAME_MS)
+            if (r.onset) expect(r.armed).toBe(false)
+            if (!r.armed) sawDisarmed = true
+        }
+        expect(sawDisarmed).toBe(true)
+    })
+})
+
+// ---------------------------------------------------------------------------
+// The three signals that matter most for a visualizer, stated plainly.
+// ---------------------------------------------------------------------------
+
+describe('the signals that decide whether visuals look right', () => {
+    it('a click track fires exactly once per click, on the click', () => {
+        const detect = makeOnsetDetector()
+        const fired = []
+        for (let frame = 0; frame < 600; frame++) {
+            const isClick = frame >= 60 && frame % 24 === 0 // 150 BPM
+            if (detect(makeSpectrum(frame, { noise: 15, hit: isClick ? 160 : 0 }), frame * FRAME_MS).onset) fired.push(frame)
+        }
+        const expected = []
+        for (let f = 72; f < 600; f += 24) expected.push(f) // first multiple of 24 at or after frame 60
+        expect(fired).toEqual(expected)
+    })
+
+    it('a slow swell fires at most once, never repeatedly', () => {
+        // A 10s crescendo has no transients. A mean-based threshold would be
+        // dragged up and a naive one would fire the whole way up.
+        const detect = makeOnsetDetector()
+        let onsets = 0
+        for (let frame = 0; frame < 600; frame++) {
+            onsets += detect(makeSpectrum(frame, { noise: 10, ramp: frame * 0.35 }), frame * FRAME_MS).onset ? 1 : 0
+        }
+        expect(onsets).toBeLessThanOrEqual(1)
+    })
+
+    it('a noisy signal with no events does not fire every frame', () => {
+        // Frame-uncorrelated broadband noise, full band, 20s.
+        const hash = (a, b) => {
+            let x = (a * 374761393 + b * 668265263) >>> 0
+            x = ((x ^ (x >>> 13)) * 1274126177) >>> 0
+            return (x ^ (x >>> 16)) >>> 0
+        }
+        const detect = makeOnsetDetector()
+        let onsets = 0
+        for (let frame = 0; frame < 1200; frame++) {
+            const spectrum = Uint8Array.from({ length: 512 }, (_, i) => hash(frame, i) % 50)
+            onsets += detect(spectrum, frame * FRAME_MS).onset ? 1 : 0
+        }
+        expect(onsets).toBe(0)
+    })
+})

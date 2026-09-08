@@ -50,6 +50,7 @@ export const defaultOnsetConfig = {
     windowFrames: 64, // rolling flux history (~1s at 60fps); clamped to a minimum of 3
     warmupFrames: 12, // history required before the threshold is trustworthy
     fluxFloor: 0.5, // absolute per-bin flux gate (0-255 byte scale) so silence can't fire
+    releaseRatio: 0.7, // Schmitt-trigger release: after firing, flux must fall back below releaseRatio * threshold before another onset can fire. 0 disables hysteresis.
     lowBin: 0, // inclusive band start
     highBin: Infinity, // exclusive band end
 }
@@ -66,6 +67,7 @@ export const makeOnsetDetector = (defaults = {}) => {
     let lastOnsetAt = -Infinity
     let strength = 0
     let warnedBand = false
+    let armed = true
 
     return (spectrum, nowMs, overrides = {}) => {
         const cfg = { ...defaultOnsetConfig, ...defaults, ...overrides }
@@ -94,6 +96,7 @@ export const makeOnsetDetector = (defaults = {}) => {
         if (resized) {
             previous = new Float32Array(spectrum.length)
             history.length = 0
+            armed = true
         }
 
         // Per-bin average of positive spectral change, so the scale is stable
@@ -111,7 +114,10 @@ export const makeOnsetDetector = (defaults = {}) => {
         // A backwards clock jump used to deafen the detector for the full
         // duration of the jump (300 frames measured for a 5s jump), because
         // nowMs - lastOnsetAt went negative and never cleared the refractory.
-        if (nowMs < lastOnsetAt) lastOnsetAt = -Infinity
+        if (nowMs < lastOnsetAt) {
+            lastOnsetAt = -Infinity
+            armed = true
+        }
 
         // Floor of 3: with a 1- or 2-frame window the current flux IS the median,
         // so the `ratio * median` gate can never be satisfied and the detector
@@ -140,9 +146,26 @@ export const makeOnsetDetector = (defaults = {}) => {
         const warmup = Math.min(Math.max(1, cfg.warmupFrames), windowFrames)
         const ready = history.length >= warmup
         const outsideRefractory = nowMs - lastOnsetAt >= cfg.refractoryMs
-        const onset = ready && outsideRefractory && flux > threshold
+
+        // Hysteresis (Schmitt trigger). The refractory period alone is a purely
+        // temporal gate: material that parks the flux just above the threshold
+        // re-fires every refractoryMs forever, a metronome locked to the timer
+        // rather than to the music. Requiring a fall back below
+        // releaseRatio * threshold means one crossing yields one onset, however
+        // long it stays up. Re-arming is evaluated before the fire decision,
+        // which is safe: any flux low enough to re-arm is by definition below
+        // the threshold, so it cannot fire on the same frame.
+        // releaseRatio <= 0 disables hysteresis. It must be handled explicitly:
+        // falling through to the comparison would test `flux < 0`, which is
+        // never true, so the detector would latch off after its first onset and
+        // go permanently deaf — the opposite of "disabled".
+        if (cfg.releaseRatio <= 0) armed = true
+        else if (!armed && flux < cfg.releaseRatio * threshold) armed = true
+
+        const onset = ready && armed && outsideRefractory && flux > threshold
 
         if (onset) {
+            if (cfg.releaseRatio > 0) armed = false // stays true when hysteresis is off, so `armed` never misreports
             lastOnsetAt = nowMs
             // Scale-free: ~0 for a grazing hit, → 1 as flux dwarfs the threshold;
             // latched until the next onset so responses can scale with hit intensity
@@ -157,6 +180,7 @@ export const makeOnsetDetector = (defaults = {}) => {
             // Infinity before the first onset; never negative, even if the
             // caller's clock runs backwards.
             timeSinceMs: Math.max(0, nowMs - lastOnsetAt),
+            armed, // false while waiting for flux to fall back below releaseRatio * threshold
             lowBin: lo, // resolved band, so callers can see what was actually used
             highBin: hi,
         }
