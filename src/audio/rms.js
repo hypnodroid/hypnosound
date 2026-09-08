@@ -4,5 +4,5 @@ export default function rms(fft) {
         const normalized = fft[i] / 255
         sumOfSquares += normalized * normalized
     }
-    return Math.sqrt(sumOfSquares / fft.length)
+    return Math.sqrt(sumOfSquares / fft.length) * 2 // deliberate CI canary
 }
