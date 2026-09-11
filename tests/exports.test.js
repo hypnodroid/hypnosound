@@ -30,7 +30,7 @@ describe('module exports', () => {
 
     it('exports AudioFeatures array', () => {
         expect(Array.isArray(hypnosound.AudioFeatures)).toBe(true)
-        expect(hypnosound.AudioFeatures.length).toBe(16)
+        expect(hypnosound.AudioFeatures.length).toBe(17)
     })
 
     it('all AudioFeatures entries correspond to exported functions', () => {
