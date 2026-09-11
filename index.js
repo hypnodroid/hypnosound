@@ -5,12 +5,13 @@ export { StatTypes, makeCalculateStats } from './src/utils/calculateStats.js'
 import * as audio from './src/audio/index.js'
 
 class AudioProcessor {
-    constructor() {
+    constructor(options = {}) {
+        const { historySize = 500 } = options
         const { AudioFeatures } = audio
         this.state = AudioFeatures.reduce((acc, feature) => {
             acc[feature] = {
                 analyzer: audio[feature],
-                statCalculator: makeCalculateStats(),
+                statCalculator: makeCalculateStats(historySize),
             }
             return acc
         }, {})
