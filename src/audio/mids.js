@@ -1,5 +1,4 @@
-export default function mids(fft) {
-    const sampleRate = 44100
+export default function mids(fft, sampleRate = 44100) {
     const totalSamples = fft.length
     return calculateMidPower(fft, sampleRate, totalSamples)
 }
