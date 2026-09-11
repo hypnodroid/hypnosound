@@ -1,4 +1,5 @@
 export { default as spectralSpread } from "./spectralSpread.js"
+export { default as chromagram } from "./chromagram.js"
 export { default as treble } from "./treble.js"
 export { default as spectralSkew } from "./spectralSkew.js"
 export { default as dbfs } from "./dbfs.js"
