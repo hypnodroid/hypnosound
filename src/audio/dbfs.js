@@ -1,10 +1,12 @@
+import normalizeInput from '../utils/normalizeInput.js'
+
 export default function dbfs(fft) {
+    const normalized = normalizeInput(fft)
     let sumOfSquares = 0
-    for (let i = 0; i < fft.length; i++) {
-        const normalized = fft[i] / 255
-        sumOfSquares += normalized * normalized
+    for (let i = 0; i < normalized.length; i++) {
+        sumOfSquares += normalized[i] * normalized[i]
     }
-    const rmsValue = Math.sqrt(sumOfSquares / fft.length)
+    const rmsValue = Math.sqrt(sumOfSquares / normalized.length)
     if (rmsValue === 0) return 0
     // 20 * log10(rms) gives dBFS, range is -Infinity to 0
     // Normalize to 0-1: silence = 0, full scale = 1
