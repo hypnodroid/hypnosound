@@ -6,7 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) **as of
 2.0.0**. Earlier releases did not — see the note under 2.0.0.
 
-## [2.0.0] — unreleased
+## [2.1.0] — 2026-11-24
+
+### Added — onset detection (#18, which carries #11, #17 and #19)
+
+- `makeOnsetDetector(config)` in `src/utils/onset.js`, exported from the package root.
+  Half-wave-rectified spectral flux against a rolling median + MAD threshold, with a
+  `ratio * median` noise gate, an absolute flux floor, a refractory period in
+  milliseconds, Schmitt-trigger hysteresis (`releaseRatio`), and optional band limiting
+  by FFT **bin** index (not Hz). The caller passes the clock (`nowMs`). It returns
+  `{ onset, flux, threshold, strength, timeSinceMs, armed, lowBin, highBin }`.
+- `makeOnsetEnvelope(config)` and `envelopeFrom()` in `src/utils/onsetEnvelope.js`: an
+  attack-decay envelope driven by onset events, computed in closed form from the
+  timestamp so it does not depend on frame rate.
+- `defaultOnsetConfig` and `defaultEnvelopeConfig`.
+- Neither one is in the `AudioFeatures` barrel. Both are stateful event tools, not
+  per-frame scalar features.
+- Known limits are documented at the top of `src/utils/onset.js`: narrow bands
+  false-fire on unsmoothed frames, and smooth tremolo fires once per cycle.
+
+### Fixed — rolling median (#23)
+
+- `makeCalculateStats().median` was wrong once the window filled. On a 500-frame window,
+  1981 of 2000 frames were wrong. Removing a departing value searched both heaps by value
+  and could take it from the wrong heap, or from a slot that broke the heap order. Each
+  heap entry now tracks its own slot, so removal is exact and O(log n). Every other stat
+  is unchanged.
+
+## [2.0.0] — 2026-09-08
 
 **No code changed between `1.14.0` and `2.0.0`.** This release exists to label, under
 semantic versioning, two breaking changes that were already published as *minor* bumps
