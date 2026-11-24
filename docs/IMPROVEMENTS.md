@@ -26,6 +26,8 @@ The library has `energy` (sum of squares) but no perceptual loudness measures. R
 
 `spectralFlux` is already computed but the library doesn't surface onset detection - the most common real-time analysis use case (beat detection, rhythm sync). Combine spectral flux with adaptive thresholding using the existing stats infrastructure.
 
+**Status: Implemented on this branch** — `makeOnsetDetector` in `src/utils/onset.js` (exported from the package root). Half-wave-rectified spectral flux gated by a rolling median + MAD adaptive threshold, a `ratio * median` stationary-noise gate, an absolute flux floor, and a millisecond refractory period; optional bin-range band limiting; scale-free latched strength. Pure and clock-free (caller passes `nowMs`), so it runs anywhere a spectrum arrives — main thread, worker, or microcontroller. Kept in `src/utils/`, not `src/audio/`: it is a stateful event detector, not a per-frame scalar feature, and must stay out of the auto-generated `AudioFeatures` barrel (paper-cranes spawns one worker per entry). Tests in `tests/onset-detection.test.js`. First consumer: paper-cranes (`docs/onset-detection.md` there has the integration + pickup notes).
+
 ## 7. Chromagram / Pitch Class Distribution
 
 `pitchClass` returns only the dominant pitch class. For harmonic analysis, chord detection, or key detection, users need the full distribution across all 12 pitch classes. Add `chromagram(fft)` returning energy per pitch class.
