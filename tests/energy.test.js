@@ -7,13 +7,14 @@ describe('energy', () => {
         expect(energy(silence())).toBe(0)
     })
 
-    it('returns a positive value for non-silent input', () => {
-        expect(energy(fullScale())).toBeGreaterThan(0)
+    it('returns 1 for full-scale signal', () => {
+        expect(energy(fullScale())).toBeCloseTo(1, 5)
     })
 
-    it('returns a consistent value for uniform signal', () => {
-        const val = energy(uniform(1024, 100))
-        expect(val).toBeCloseTo(100 * 100 / 1000, 5)
+    it('returns correct value for uniform signal', () => {
+        // uniform(1024, 100): each sample = 100/255, squared = (100/255)^2
+        const expected = (100 / 255) ** 2
+        expect(energy(uniform(1024, 100))).toBeCloseTo(expected, 5)
     })
 
     it('scales with amplitude: louder signal has more energy', () => {
@@ -22,7 +23,7 @@ describe('energy', () => {
         expect(high).toBeGreaterThan(low)
     })
 
-    it('is independent of FFT size for uniform signal (per-sample normalization)', () => {
+    it('is independent of FFT size for uniform signal', () => {
         const short = energy(uniform(256, 100))
         const long = energy(uniform(2048, 100))
         expect(short).toBeCloseTo(long, 5)
@@ -30,11 +31,17 @@ describe('energy', () => {
 
     it('single bin contributes proportionally to length', () => {
         const fft = singleBin(1024, 50, 200)
-        const expected = (200 * 200) / 1024 / 1000
+        const expected = (200 / 255) ** 2 / 1024
         expect(energy(fft)).toBeCloseTo(expected, 5)
     })
 
     it('rising spectrum has more energy than silence', () => {
         expect(energy(risingSpectrum())).toBeGreaterThan(0)
+    })
+
+    it('is always in [0, 1] range', () => {
+        expect(energy(silence())).toBeGreaterThanOrEqual(0)
+        expect(energy(fullScale())).toBeLessThanOrEqual(1)
+        expect(energy(risingSpectrum())).toBeLessThanOrEqual(1)
     })
 })

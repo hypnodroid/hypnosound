@@ -41,6 +41,14 @@ describe('pitchClass', () => {
         expect(val).toBeCloseTo(0.75, 1)
     })
 
+    it('ignores extra arguments', () => {
+        const fft = singleBin(4096, 41, 255)
+        const expected = pitchClass(fft)
+        // Callers may pass extra args (e.g. previousSignal) — should be ignored
+        expect(pitchClass(fft, new Uint8Array(128))).toBe(expected)
+        expect(pitchClass(fft, undefined)).toBe(expected)
+    })
+
     it('handles bin 0 (DC) without crashing', () => {
         const fft = singleBin(1024, 0, 255)
         // bin 0 = 0 Hz, log2(0/440) = -Infinity, should return 0 via NaN guard
