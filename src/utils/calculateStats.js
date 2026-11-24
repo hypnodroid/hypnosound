@@ -38,116 +38,98 @@ class MonotonicQueue {
     peek = () => this.deque[0]
 }
 
-const bubbleUp = (heap, isMinHeap) => {
-    let index = heap.length - 1
-    const value = heap[index]
+// Two-heap rolling median. Each heap entry is a node { value, heap, index } that
+// knows where it sits, so the value leaving the window is removed in O(log n)
+// from its own slot instead of being searched for.
+const outranks = (heap, a, b) => (heap.isMin ? a.value < b.value : a.value > b.value)
 
+const place = (heap, node, index) => {
+    heap[index] = node
+    node.index = index
+}
+
+const siftUp = (heap, index) => {
+    const node = heap[index]
     while (index > 0) {
-        const parentIdx = Math.floor((index - 1) / 2)
-        const shouldSwap = isMinHeap ? heap[index] < heap[parentIdx] : heap[index] > heap[parentIdx]
-
-        if (!shouldSwap) break
-
-        heap[index] = heap[parentIdx]
-        index = parentIdx
+        const parentIndex = (index - 1) >> 1
+        if (!outranks(heap, node, heap[parentIndex])) break
+        place(heap, heap[parentIndex], index)
+        index = parentIndex
     }
-
-    heap[index] = value
+    place(heap, node, index)
 }
 
-const getBestChildIndex = (heap, leftChildIndex, rightChildIndex, isMinHeap) => {
-    if (rightChildIndex >= heap.length) return leftChildIndex
-
-    const comparator = isMinHeap ? Math.min : Math.max
-    return comparator(heap[leftChildIndex], heap[rightChildIndex]) === heap[leftChildIndex] ? leftChildIndex : rightChildIndex
-}
-
-const sinkDown = (heap, isMinHeap) => {
-    let index = 0
-    const value = heap[0]
+const siftDown = (heap, index) => {
+    const node = heap[index]
     const length = heap.length
-
     while (true) {
-        const leftChildIndex = 2 * index + 1
-        if (leftChildIndex >= length) break
-
-        const bestChildIndex = getBestChildIndex(heap, leftChildIndex, 2 * index + 2, isMinHeap)
-        const shouldSwap = isMinHeap ? heap[bestChildIndex] < value : heap[bestChildIndex] > value
-
-        if (!shouldSwap) break
-
-        heap[index] = heap[bestChildIndex]
-        index = bestChildIndex
+        const left = 2 * index + 1
+        if (left >= length) break
+        const right = left + 1
+        const best = right < length && outranks(heap, heap[right], heap[left]) ? right : left
+        if (!outranks(heap, heap[best], node)) break
+        place(heap, heap[best], index)
+        index = best
     }
+    place(heap, node, index)
+}
 
-    heap[index] = value
+const pushNode = (heap, node) => {
+    node.heap = heap
+    place(heap, node, heap.length)
+    siftUp(heap, node.index)
+}
+
+// Removes the node from whatever slot it occupies. The last node fills the hole and
+// may belong above or below it, so the heap property is restored from that slot in
+// both directions.
+const removeNode = (heap, node) => {
+    const last = heap.pop()
+    if (last === node) return
+    place(heap, last, node.index)
+    siftUp(heap, last.index)
+    siftDown(heap, last.index)
+}
+
+const popTop = (heap) => {
+    const top = heap[0]
+    removeNode(heap, top)
+    return top
 }
 
 export const makeCalculateStats = (historySize = 500) => {
     const queue = []
     const minQueue = new MonotonicQueue(true)
     const maxQueue = new MonotonicQueue(false)
-    const lowerHalf = [] // Max heap
-    const upperHalf = [] // Min heap
+    const lowerHalf = Object.assign([], { isMin: false }) // max heap: the smaller half
+    const upperHalf = Object.assign([], { isMin: true }) // min heap: the larger half
+    const nodes = [] // heap nodes in arrival order, parallel to queue
 
     let sum = 0
     let sumOfSquares = 0
 
-    const getTargetHeap = (value) => {
-        if (lowerHalf.length === 0 || value < lowerHalf[0]) return { target: lowerHalf, isMin: false }
-        return { target: upperHalf, isMin: true }
+    // Keeps lowerHalf.length equal to upperHalf.length or one more
+    const rebalanceHeaps = () => {
+        if (lowerHalf.length > upperHalf.length + 1) return pushNode(upperHalf, popTop(lowerHalf))
+        if (upperHalf.length > lowerHalf.length) pushNode(lowerHalf, popTop(upperHalf))
     }
 
     const addToHeaps = (value) => {
-        const heap = getTargetHeap(value)
-        heap.target.push(value)
-        bubbleUp(heap.target, heap.isMin)
+        const node = { value, heap: null, index: -1 }
+        pushNode(lowerHalf.length && value > lowerHalf[0].value ? upperHalf : lowerHalf, node)
         rebalanceHeaps()
+        return node
     }
 
-    const removeNumberFromHeaps = (number) => {
-        if (lowerHalf.includes(number)) {
-            const index = lowerHalf.indexOf(number)
-            lowerHalf[index] = lowerHalf[lowerHalf.length - 1]
-            lowerHalf.pop()
-            sinkDown(lowerHalf, false)
-        } else if (upperHalf.includes(number)) {
-            const index = upperHalf.indexOf(number)
-            upperHalf[index] = upperHalf[upperHalf.length - 1]
-            upperHalf.pop()
-            sinkDown(upperHalf, true)
-        }
+    const removeFromHeaps = (node) => {
+        removeNode(node.heap, node)
         rebalanceHeaps()
-    }
-
-    const rebalanceHeaps = () => {
-        if (lowerHalf.length <= upperHalf.length + 1 && upperHalf.length <= lowerHalf.length) return
-
-        if (lowerHalf.length > upperHalf.length + 1) {
-            const value = extractTop(lowerHalf)
-            upperHalf.push(value)
-            bubbleUp(upperHalf, true)
-            return
-        }
-
-        const value = extractTop(upperHalf)
-        lowerHalf.push(value)
-        bubbleUp(lowerHalf, false)
-    }
-
-    const extractTop = (heap) => {
-        if (!heap.length) return null
-        const top = heap[0]
-        heap[0] = heap[heap.length - 1]
-        heap.pop()
-        sinkDown(heap, heap === upperHalf)
-        return top
     }
 
     const calculateMedian = () => {
-        if (!lowerHalf.length) return queue[0] || 0
-        if (lowerHalf.length === upperHalf.length) return (lowerHalf[0] + upperHalf[0]) / 2
-        return lowerHalf[0]
+        if (!lowerHalf.length) return 0
+        if (lowerHalf.length === upperHalf.length) return (lowerHalf[0].value + upperHalf[0].value) / 2
+        return lowerHalf[0].value
     }
 
     // Calculate linear regression using least squares method
@@ -193,7 +175,7 @@ export const makeCalculateStats = (historySize = 500) => {
 
         minQueue.push(value)
         maxQueue.push(value)
-        addToHeaps(value)
+        nodes.push(addToHeaps(value))
         queue.push(value)
 
         sum += value
@@ -205,7 +187,7 @@ export const makeCalculateStats = (historySize = 500) => {
             sumOfSquares -= removed * removed
             minQueue.remove(removed)
             maxQueue.remove(removed)
-            removeNumberFromHeaps(removed)
+            removeFromHeaps(nodes.shift())
         }
 
         const mean = sum / queue.length
