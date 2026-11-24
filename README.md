@@ -65,8 +65,8 @@ console.log({ value, stats })
 `makeCalculateStats(historySize = 500)` keeps a rolling window and returns `current`,
 `mean`, `median`, `min`, `max`, `standardDeviation`, `zScore`, `normalized`,
 `slope`, `intercept` and `rSquared`. The rolling median is exact from 2.1.0. Earlier
-versions returned the wrong median on most frames once the window was full: 1981 of 2000
-frames on a 500-frame window.
+versions returned the wrong median on almost every frame, before the window filled as well
+as after: 1981 of 2000 frames of uniform random input on a 500-frame window.
 
 ### Onset detection (2.1.0+)
 
