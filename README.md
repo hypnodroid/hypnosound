@@ -60,6 +60,40 @@ const stats = calculateStats(value) // WARNING: each call to calculateStats will
 console.log({ value, stats })
 ```
 
+### Statistics
+
+`makeCalculateStats(historySize = 500)` keeps a rolling window and returns `current`,
+`mean`, `median`, `min`, `max`, `standardDeviation`, `zScore`, `normalized`,
+`slope`, `intercept` and `rSquared`. The rolling median is exact from 2.1.0. Earlier
+versions returned the wrong median on almost every frame, before the window filled as well
+as after: 1981 of 2000 frames of uniform random input on a 500-frame window.
+
+### Onset detection (2.1.0+)
+
+`makeOnsetDetector` turns a stream of spectra into discrete hit events. `makeOnsetEnvelope`
+turns those events into a smooth attack-decay value you can animate from. Neither one is in
+`AudioFeatures` or `AudioProcessor`. They keep state, and the caller passes the clock.
+
+```javascript
+import { makeOnsetDetector, makeOnsetEnvelope } from 'hypnosound'
+
+// Bands are FFT BIN indices, not Hz. For N bins from an FFT of size 2N,
+// bin spacing is sampleRate / (2 * N).
+const detectKick = makeOnsetDetector({ lowBin: 0, highBin: 16 })
+const kickEnvelope = makeOnsetEnvelope({ decayMs: 220 })
+
+function onFrame(fft, nowMs) {
+    const { onset, strength, timeSinceMs } = detectKick(fft, nowMs)
+    const kick = kickEnvelope(onset, strength, nowMs) // floor..1, frame-rate independent
+    return { onset, kick, timeSinceMs }
+}
+```
+
+The detector returns `{ onset, flux, threshold, strength, timeSinceMs, armed, lowBin, highBin }`.
+For the defaults, see `defaultOnsetConfig` and `defaultEnvelopeConfig`. The header of
+`src/utils/onset.js` lists the measured limits: narrow bands false-fire on unsmoothed
+frames, and a smooth tremolo fires once per cycle.
+
 ## Output ranges
 
 Ranges below are **empirically measured**, not declared — produced by
